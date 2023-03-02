@@ -208,6 +208,8 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
       $txt = $template->field_templating_html->value;
       fwrite($myfile, $txt);
       fclose($myfile);
+      $message = t('Template export successfully');
+      \Drupal::messenger()->addMessage($message);
       return true;
   }
   public function diff($template){
