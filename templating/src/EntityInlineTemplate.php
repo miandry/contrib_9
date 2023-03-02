@@ -2,6 +2,7 @@
 
 namespace Drupal\templating;
 
+use Drupal\Component\Diff\Diff;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
@@ -208,6 +209,19 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
       fwrite($myfile, $txt);
       fclose($myfile);
       return true;
+  }
+  public function diff($template){
+     $service = \Drupal::service('templating.manager');
+    $file = $service->getFilepathTemplating( $template);
+    $content_html = file_get_contents($file);
+    $txt = $template->field_templating_html->value;
+    $diffFormatter = \Drupal::service('diff.formatter');
+
+    $from = explode("\n", $content_html);
+    $to = explode("\n",  $txt );
+    $diff = new Diff($from, $to);
+    $diffFormatter->show_header = FALSE;
+    return $diffFormatter->format($diff);
   }
   public function getFilepathTemplating($template){
       $file_name = ($template->label());

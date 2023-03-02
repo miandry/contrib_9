@@ -33,24 +33,18 @@ class ConfigDiffForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state)
     { $nid = \Drupal::request()->query->get('nid');
-
+      $rows=[];
+      if($nid){
       $template =  \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-      $service = \Drupal::service('templating.manager');
-      $file = $service->getFilepathTemplating( $template);
-      $content_html = file_get_contents($file);
-      $txt = $template->field_templating_html->value;
-              $diffFormatter = \Drupal::service('diff.formatter');
 
-              $from = explode("\n", $content_html);
-              $to = explode("\n",  $txt );
-              $diff = new Diff($from, $to);
-              $diffFormatter->show_header = FALSE;
-              $rows = $diffFormatter->format($diff);
+      $service = \Drupal::service('templating.manager');
+      $rows =  $service->diff( $template );
         // Add the CSS for the inline diff.
         $form['#attached']['library'][] = 'system/diff';
       $form['text'] = [
         '#markup' => '<h4>Template : '.$template->label().'</h4>',
       ];
+      }
         $form['diff'] = [
           '#type' => 'table',
           '#attributes' => [
