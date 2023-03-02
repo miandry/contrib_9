@@ -5,6 +5,7 @@ namespace Drupal\templating;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 {
@@ -86,15 +87,15 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   public function getLastEntityContent($bundle,$type = 'block_content') {
     $block_id = 0 ;
     $query = \Drupal::entityQuery($type);
-    $query->condition('type', $bundle);  
+    $query->condition('type', $bundle);
     $query->range(0,1);
     $res = $query->execute();
     if(!empty($res)){
       $block_id = end($res);
       return \Drupal::entityTypeManager()->getStorage($type)->load($block_id) ;
-    }  
+    }
     return false ;
-    
+
   }
 
   function generateLibrary()
@@ -192,5 +193,26 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     }
     return null;
   }
+  public static function importFinishedCallback($success, $results, $operations) {
+    if ($success) {
+      $message = t('Template export successfully');
+      \Drupal::messenger()->addMessage($message);
+    }
 
+    return new RedirectResponse(Url::fromRoute('view.templating.page_1')->toString());
+  }
+  public function exportTemplating($template){
+      $file_path =$this->getFilepathTemplating($template);
+      $myfile = fopen($file_path , "wr") or \Drupal::logger('templating')->error($file_path ."can not write");
+      $txt = $template->field_templating_html->value;
+      fwrite($myfile, $txt);
+      fclose($myfile);
+      return true;
+  }
+  public function getFilepathTemplating($template){
+      $file_name = ($template->label());
+      $themeHandler = \Drupal::service('theme_handler');
+      $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
+      return (DRUPAL_ROOT.'/'.$themePath.'/templates/templating/'.$file_name);
+}
 }

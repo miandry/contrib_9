@@ -13,3 +13,6 @@ allowed edit template:
 allowed create template:
   title: 'Allowed create template'
   description: 'Allowed create template'
+allowed write template file:
+  title: 'Allowed write template file'
+  description: 'Allowed write template file'

@@ -173,9 +173,56 @@ function templating_form_alter(&$form, FormStateInterface $form_state, $form_id)
        $form['field_templating_entity_type']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
        $form['field_templating_bundle']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
        $form['title']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
+       $template = $form_state->getFormObject()->getEntity();
+     $service = \Drupal::service('templating.manager');
+     $file = $service->getFilepathTemplating( $template);
+     if (\Drupal::currentUser()->hasPermission('allowed write template file')) {
+       if (!file_exists($file)) {
+         $form['actions']['alt_button'] = array(
+           '#type' => 'submit',
+           '#value' => t('Export'),
+           '#submit' => array('_templating_node_write_form_submit'),
+         );
+       }else{
+         $form['actions']['alt_button'] = array(
+           '#type' => 'submit',
+           '#value' => t('Update file'),
+           '#submit' => array('_templating_node_write_form_submit'),
+         );
+         $form['actions']['diff_button'] = array(
+           '#type' => 'submit',
+           '#value' => t('Check diff'),
+           '#submit' => array('_templating_node_diff_form_submit'),
+         );
+       }
+     }
+
 
    }
 }
+function _templating_node_diff_form_submit($form,FormStateInterface &$form_state) {
+  $template = $form_state->getFormObject()->getEntity();
+  $nid = $template->id();
+  $path = '/admin/templating/diff?nid='. $nid.'&destination=/node' . '/' . $nid . '/edit';
+  $response = new RedirectResponse($path, 302);
+  $response->send();
+}
+
+function _templating_node_write_form_submit ($form,FormStateInterface &$form_state) {
+  $service = \Drupal::service('templating.manager');
+  $template = $form_state->getFormObject()->getEntity();
+  $batch = [
+    'title' => t('Export Template From File...'),
+    'operations' => [],
+    'init_message' => t('Starting ..'),
+    'progress_message' => t('Processd @current out of @total.'),
+    'error_message' => t('An error occurred during processing.'),
+    'finished' => 'Drupal\templating\EntityInlineTemplate::importFinishedCallback',
+  ];
+  $batch['operations'][] = [$service->exportTemplating($template), []];
+  //batch_set($batch);
+}
+
  /**
  * Implements hook_menu_local_tasks_alter().
  * Add tab with custom title and link only to pages of a selected content type
