@@ -46,11 +46,27 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     return $output;
   }
 
-  function getTemplatingDatabase($entity, $mode_view)
+  function getEntityFromVariable($var, $entity = null)
+  {
+    if ($entity == "block"  &&  $var["content"]['#block_content']) {
+      $content = $var["content"];
+      $entity_result =  (is_object($content['#block_content']))? $content['#block_content'] : $content['content']['#block_content'];
+    } else {
+      $entity_result = $var['elements']["#" . $entity];
+    }
+
+    return $entity_result;
+
+  }
+
+  function getTemplatingDatabase($entity, $mode_view = null)
   {
     $theme = $this->is_allowed();
     if (!$theme) {
       return false;
+    }
+    if($mode_view == null){
+      $mode_view = "full";
     }
     $entity_name = $entity->getEntityTypeId();
     $bundle = $entity->bundle();
@@ -59,7 +75,8 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $hook_name = $this->formatName($entity_name . '--' . $theme . '-' . $bundle . "-" . $mode_view . ".html.twig");
     $content = $this->getTemplatingByTitle($hook_name);
     if (!is_object($content)) {
-      $hook_name_base = $entity_name . '--' . $theme . '-' . $bundle . "-" . $mode_view . ".html.twig";
+      $theme_base = $this->baseTheme($theme);
+      $hook_name_base =  $this->formatName($entity_name . '--' . $theme_base . '-' . $bundle . "-" . $mode_view . ".html.twig");
       $content_base = $this->getTemplatingByTitle($hook_name_base);
       if (is_object($content_base)) {
         $content = $content_base;
@@ -76,26 +93,29 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 
     return $output;
   }
-  function getTemplatingPreview($entity , $template)
+
+  function getTemplatingPreview($entity, $template)
   {
     $theme = $this->is_allowed();
     if (!$theme) {
       return false;
     }
-    $output = $template->field_templating_html->value ;
+    $output = $template->field_templating_html->value;
     return $output;
   }
-  public function getLastEntityContent($bundle,$type = 'block_content') {
-    $block_id = 0 ;
+
+  public function getLastEntityContent($bundle, $type = 'block_content')
+  {
+    $block_id = 0;
     $query = \Drupal::entityQuery($type);
     $query->condition('type', $bundle);
-    $query->range(0,1);
+    $query->range(0, 1);
     $res = $query->execute();
-    if(!empty($res)){
+    if (!empty($res)) {
       $block_id = end($res);
-      return \Drupal::entityTypeManager()->getStorage($type)->load($block_id) ;
+      return \Drupal::entityTypeManager()->getStorage($type)->load($block_id);
     }
-    return false ;
+    return false;
 
   }
 
@@ -123,10 +143,10 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
           $array_paths
         );
         $allowed_path = false;
-        if (in_array("*",$array_paths)) {
+        if (in_array("*", $array_paths)) {
           $allowed_path = true;
         }
-        if (in_array($str_url,$array_paths)) {
+        if (in_array($str_url, $array_paths)) {
           $allowed_path = true;
         }
         if ($allowed_path && $mytheme == $theme) {
@@ -140,7 +160,7 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
             if ($is_file) {
               $file = File::load($node->field_lib_file->target_id);
               if (is_object($file)) {
-                 $url = URl::fromUri(file_create_url($file->getFileUri()))->toString();
+                $url = URl::fromUri(file_create_url($file->getFileUri()))->toString();
               }
             }
           }
@@ -172,7 +192,7 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     if (!empty($libs)) {
       foreach ($libs as $id) {
         $node = \Drupal::entityTypeManager()->getStorage('node')->load($id);
-        if($node->status && $node->status->value == 1){
+        if ($node->status && $node->status->value == 1) {
           $results[$id] = $node;
         }
       }
@@ -180,12 +200,14 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     }
     return $results;
   }
-  function htmlPage(){
+
+  function htmlPage()
+  {
     $node = \Drupal::request()->attributes->get('node');
-    $is_ready = $this->is_field_ready($node,'body');
-    if ($node && $node->bundle()=='html_page' && $is_ready ) {
-      $body =  $node->body->value ;
-      $var['entity'] = $node ;
+    $is_ready = $this->is_field_ready($node, 'body');
+    if ($node && $node->bundle() == 'html_page' && $is_ready) {
+      $body = $node->body->value;
+      $var['entity'] = $node;
       return [
         '#type' => 'inline_template',
         '#template' => $body,
@@ -194,7 +216,9 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     }
     return null;
   }
-  public static function importFinishedCallback($success, $results, $operations) {
+
+  public static function importFinishedCallback($success, $results, $operations)
+  {
     if ($success) {
       $message = t('Template export successfully');
       \Drupal::messenger()->addMessage($message);
@@ -202,57 +226,65 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 
     return new RedirectResponse(Url::fromRoute('view.templating.page_1')->toString());
   }
-  public function exportTemplating($template){
-      $file_path =$this->getFilepathTemplating($template);
-      $myfile = fopen($file_path , "wr") or \Drupal::logger('templating')->error($file_path ."can not write");
-      $txt = $template->field_templating_html->value;
-      fwrite($myfile, $txt);
-      fclose($myfile);
-      $message = t('Template export successfully');
-      \Drupal::messenger()->addMessage($message);
-      return true;
+
+  public function exportTemplating($template)
+  {
+    $file_path = $this->getFilepathTemplating($template);
+    $myfile = fopen($file_path, "wr") or \Drupal::logger('templating')->error($file_path . "can not write");
+    $txt = $template->field_templating_html->value;
+    fwrite($myfile, $txt);
+    fclose($myfile);
+    $message = t('Template export successfully');
+    \Drupal::messenger()->addMessage($message);
+    return true;
   }
-  public function diff($template){
-     $service = \Drupal::service('templating.manager');
-    $file = $service->getFilepathTemplating( $template);
+
+  public function diff($template)
+  {
+    $service = \Drupal::service('templating.manager');
+    $file = $service->getFilepathTemplating($template);
     $content_html = file_get_contents($file);
     $txt = $template->field_templating_html->value;
     $diffFormatter = \Drupal::service('diff.formatter');
 
     $from = explode("\n", $content_html);
-    $to = explode("\n",  $txt );
+    $to = explode("\n", $txt);
     $diff = new Diff($from, $to);
     $diffFormatter->show_header = FALSE;
     return $diffFormatter->format($diff);
   }
-  public function getFilepathTemplating($template){
-      $file_name = ($template->label());
-      $themeHandler = \Drupal::service('theme_handler');
-      $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
-      return (DRUPAL_ROOT.'/'.$themePath.'/templates/templating/'.$file_name);
+
+  public function getFilepathTemplating($template)
+  {
+    $file_name = ($template->label());
+    $themeHandler = \Drupal::service('theme_handler');
+    $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
+    return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/' . $file_name);
   }
-  public function getRenderTemplate($content){
-     // comment.html.twig
-     if(isset($content['comment_body'])){
-       $output = false ;
-       $current_theme = \Drupal::theme()->getActiveTheme();
-       $theme = $current_theme->getName();
-       $hook_name_base = $this->formatName("comment--".$theme."-.html.twig");
-       $content_base = $this->getTemplatingByTitle($hook_name_base);
-       if (is_object($content_base)) {
-         $output = $content_base->field_templating_html->value;
-       }
-       if ($output) {
-         return [
-           '#type' => 'inline_template',
-           '#template' => $output,
-           '#context' => [
-             'content' => $content
-           ],
-         ];
-       }
-       return false;
-     }
+
+  public function getRenderTemplate($content)
+  {
+    // comment.html.twig
+    if (isset($content['comment_body'])) {
+      $output = false;
+      $current_theme = \Drupal::theme()->getActiveTheme();
+      $theme = $current_theme->getName();
+      $hook_name_base = $this->formatName("comment--" . $theme . "-.html.twig");
+      $content_base = $this->getTemplatingByTitle($hook_name_base);
+      if (is_object($content_base)) {
+        $output = $content_base->field_templating_html->value;
+      }
+      if ($output) {
+        return [
+          '#type' => 'inline_template',
+          '#template' => $output,
+          '#context' => [
+            'content' => $content
+          ],
+        ];
+      }
+      return false;
+    }
 
   }
 }

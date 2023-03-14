@@ -29,30 +29,31 @@
 #}
 {%
   set classes = [
-    'block',
-    'block-' ~ configuration.provider|clean_class,
-    'block-' ~ plugin_id|clean_class
-  ]
+  'block',
+  'block-' ~ configuration.provider|clean_class,
+  'block-' ~ plugin_id|clean_class
+]
 %}
-  <div{{ attributes.addClass(classes) }}>
-    {{ title_prefix }}
-    {% if label %}
-      <h2{{ title_attributes }}>{{ label }}</h2>
-    {% endif %}
-    {{ title_suffix }}
-    {% block content %}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {% if label %}
+    <h2{{ title_attributes }}>{{ label }}</h2>
+  {% endif %}
+  {{ title_suffix }}
+  {% block content %}
 
-      <div{{ content_attributes.addClass('content') }}>
-            
-            {% set output = render_template_block(content) %}           
-            {% if output %}
-                 {{output}}
-            {% else %}  
-                {% if content.content %}
-                    {% set content  = content.content %}
-                {% endif %} 
-                {{spacer_top(content)|raw}}{% block templating_content %}{{content}}{% endblock %}{{spacer_bottom(content)|raw}}             
-            {% endif %}  
-      </div>
-    {% endblock %}
-  </div>
+    <div{{ content_attributes.addClass('content') }}>
+
+      {% set output = render_inline_template(var_template,"block") %}
+      {% if output %}
+      {{output}}
+      {% else %}
+      {% if content.content %}
+      {% set content  = content.content %}
+      {% endif %}
+      {{spacer_top(content)|raw}}{% block templating_content %}{{content}}{% endblock %}{{spacer_bottom(content)|raw}}
+      {% endif %}
+    </div>
+  {% endblock %}
+</div>
+

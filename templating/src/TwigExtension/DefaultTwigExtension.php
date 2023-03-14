@@ -103,7 +103,7 @@ class DefaultTwigExtension extends \Twig_Extension
     {   $entity = false ;
         $is_edit_layout_builder = isset($content['content']) && $content['content'] && $content['actions'];
         if ($is_edit_layout_builder) {
-            $content = $content['content'];
+           $content = $content['content'];
         }
         if (isset($content['#entity_type'])
         && ($content['#entity_type'] == "block_content"
@@ -129,25 +129,7 @@ class DefaultTwigExtension extends \Twig_Extension
         }
         return "";
     }
-    public static function render_template_node_twig($content, $entity, $view_mode = 'full')
-    {
-        if (is_object($entity)) {
-            $services = \Drupal::service('templating.manager');
-            $output = $services->getTemplateEntity($entity, $view_mode);
-            if ($output) {
-                return [
-                    '#type' => 'inline_template',
-                    '#template' => $output,
-                    '#context' => [
-                        'content' => $content,
-                        'node' => $entity,
-                    ],
-                ];
-            }
 
-        }
-        return "";
-    }
     public static function path_templating()
     {
         $module_handler = \Drupal::service('module_handler');
@@ -238,78 +220,36 @@ class DefaultTwigExtension extends \Twig_Extension
         return file_exists(DRUPAL_ROOT . '/' . $file_path);
     }
 
-    public static function render_inline_template_twig($content)
-    {
-        $output = false;
-        /// var_dump($content);die();
+    public static function render_inline_template_twig($var,$entity = false)
+    {   $content = $var['content'];
+        $services = \Drupal::service('templating.manager');
+        if(!$entity){
+          return false ;
+        }
+
+        if(is_string($entity)){
+          $entity = $services->getEntityFromVariable($var,$entity);
+        }
+        if(!is_object($entity)){
+          return false;
+        }
         $is_edit_layout_builder = isset($content['content']) && $content['content'] && $content['actions'];
         if ($is_edit_layout_builder) {
-            $content = $content['content'];
+          $var["content"] =  $content['content'];
         }
+        $view_mode = isset($var["elements"]["#view_mode"])?$var["elements"]["#view_mode"]:null;
+        $output = $services->getTemplateEntity($entity, $view_mode);
 
-        if (isset($content['#entity_type'])
-            && ($content['#entity_type'] == "block_content"
-                || $content['#entity_type'] == "inline_block")) {
-            $services = \Drupal::service('templating.manager');
-            $config = null;
-            $theme = $services->is_allowed();
-            if (!$theme) {
-                return false;
-            }
-            $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
-            $themebase = $activeThemeName->getBaseThemes();
-            $base = null;
-            if (!empty($themebase)) {
-                $base = array_keys($themebase)[0];
-            }
-            $content_block = isset($content['#block_content']) ? $content['#block_content'] : $content['content']['#block_content'];
-            $mode_view = isset($content['#view_mode']) ? $content['#view_mode'] : $content['content']['#view_mode'];
-            $bundle = $content_block->bundle();
-            $id = $content_block->id();
-            $suggestion = $services->formatName('template.block--' . $theme . '-' . $bundle . "-" . $mode_view . ".html.twig");
-            $suggestion_id = $services->formatName('template.block--' . $theme . '-' . $bundle . "-" . $mode_view . "-" . $id . ".html.twig");
-            $output = false;
-            $config_current = \Drupal::config($suggestion);
-            $config_id = \Drupal::config($suggestion_id);
-            $template_name = $suggestion;
-            // base theme
-            if ($base) {
-                $suggestionbase = $services->formatName('template.block--' . $base . '-' . $bundle . "-" . $mode_view . ".html.twig");
-                $config_id_base = \Drupal::config($suggestionbase);
-                if ($config_id_base && $config_id_base->get('content') &&
-                    $config_id_base->get('status')) {
-                    $config = $config_id_base;
-                }
-            }
-            // current theme
-            if ($config_current && $config_current->get('content')) {
-                $config = $config_current;
-
-            }
-
-            // current theme by id
-            if ($config_id && $config_id->get('content')) {
-                $config = $config_id;
-            }
-
-            if ($config && $config->get('content') &&
-                $config->get('status')
-            ) {
-
-                $output = $config->get('content');
-                $output = $services->injectionSpacer($output);
-                $output = $services->assetInjection($output, $config);
-            }
-
-        }
         if ($output) {
             $element = [
                 '#type' => 'inline_template',
                 '#template' => $output,
-                '#context' => [
-                    'content' => isset($content['content']) ? $content['content'] : $content,
-                ],
             ];
+            $entity_name = $entity->bundle();
+            $var["entity"] = $entity ;
+            $var[$entity_name] = $entity ;
+            $var["variables"] = array_keys($var) ;
+            $element['#context'] = $var ;
             return $element;
         }
         return $output;

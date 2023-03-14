@@ -80,16 +80,18 @@
     view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
   ]
 %}
+
 {{ attach_library('classy/node') }}
 <article{{attributes.addClass(classes)}}>
 	{{ title_prefix }}
 	{{ title_suffix }}
-	{% set output = render_template_node(content,node,view_mode) %} 
+
+	{% set output = render_inline_template(var_template,node) %}
 	{% if output %}
 	     {{output}}
 	{% else %}
-		<div{{content_attributes.addClass('node__content')}}> 
-			{{spacer_top(content)|raw}}{% block templating_content %}{{content}}{% endblock %}{{spacer_bottom(content)|raw}}                                 
+		<div{{content_attributes.addClass('node__content')}}>
+			{{spacer_top(content)|raw}}{% block templating_content %}{{content}}{% endblock %}{{spacer_bottom(content)|raw}}
 		</div>
 	{% endif %}
 </article>

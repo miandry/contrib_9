@@ -86,15 +86,21 @@ function templating_theme_suggestions_block_alter(&$suggestions, $variables) {
         $id = $content['#block_content']->id();
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
+        $suggestions[] = 'block_content__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
+        $suggestions[] = 'block_content__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
+
+
 
     }
-    if(isset($content['content'])
-    && $content['content']['#block_content'] instanceof \Drupal\block_content\BlockContentInterface){
-        $id = $content['content']['#block_content']->id();
-        $view_mode = $variables['elements']['content']['content']['#view_mode'];
-        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$view_mode;
-        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$id."_".$view_mode;
-    }
+//    if(isset($content['content'])
+//    && $content['content']['#block_content'] instanceof \Drupal\block_content\BlockContentInterface){
+//        $id = $content['content']['#block_content']->id();
+//        $view_mode = $variables['elements']['content']['content']['#view_mode'];
+//        kint($content['content']['#block_content']);die();
+//       // $suggestions[] = 'block__'.$content['content']['#block_content']->getType();
+//        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$view_mode;
+//        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$id."_".$view_mode;
+//    }
     if (!isset($content['#block_content'])){
         $plugin_id = trim($variables['elements']['#plugin_id']);
         $base_plugin_id = trim($variables['elements']['#base_plugin_id']);
@@ -161,9 +167,7 @@ function templating_preprocess_html(&$variables) {
         $variables['library_template'] = $service->generateLibrary();
      }
 }
-function templating_preprocess_user(&$variables) {
-  $variables['view_mode'] = isset($variables['elements']['#view_mode'])? $variables['elements']['#view_mode'] : 'full';
-}
+
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
@@ -295,10 +299,33 @@ function templating_theme_suggestions_user_alter(&$suggestions, $vars, $hook) {
   // Create a theme hook suggestion which has the view mode name in it.
   $suggestions[] = 'user__' . $mode;
 }
+//
+
+function templating_preprocess_block(&$variables){
+  $service = \Drupal::service('templating.manager');
+  if($service->is_allowed()){
+    $variables["var_template"] = $variables ;
+  }
+
+}
+
+function templating_preprocess_user(&$variables) {
+  $service = \Drupal::service('templating.manager');
+  if($service->is_allowed()){
+    $variables["var_template"] = $variables ;
+    $variables['view_mode'] = isset($variables['elements']['#view_mode'])? $variables['elements']['#view_mode'] : 'full';
+  }
+
+}
 function templating_preprocess_node(&$variables){
   $node = $variables['elements']["#node"];
-  if($variables["view_mode"] == "full" && is_object($node) && $node->bundle() == "templating"){
-    $service = \Drupal::service('templating.manager');
+  $service = \Drupal::service('templating.manager');
+  if($service->is_allowed() && is_object($node)){
+      $variables["var_template"] = $variables ;
+  }
+    if($variables["view_mode"] == "full" && is_object($node) && $node->bundle() == "templating"){
+
+
     $type = $node->field_templating_entity_type->value ;
     $bundle = $node->field_templating_bundle->value ;
     if($service->is_field_ready($node,'field_templating_mode_view')){

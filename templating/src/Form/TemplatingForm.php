@@ -45,10 +45,10 @@ class TemplatingForm
             if ($values['uid'] != "") {
                 $user = \Drupal::entityTypeManager()->getStorage('user')->load(trim($values['uid']));
                 if (is_object($user)) {
-                    $config_name = "user--" . $values['theme'] . "-" . trim($values['uid']) . "-" . trim($values['mode_view_user']) . ".html.twig";
+                    $config_name = "user--" . $values['theme'] . "-user-" . trim($values['uid']) . "-" . trim($values['mode_view_user']) . ".html.twig";
                 }
             } else {
-                $config_name = "user--" . $values['theme']  . '-' . trim($values['mode_view_user']) . '.html.twig';
+                $config_name = "user--" . $values['theme']  . '-user-' . trim($values['mode_view_user']) . '.html.twig';
             }
         }
         return [

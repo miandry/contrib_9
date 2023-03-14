@@ -7,6 +7,16 @@ use Drupal\node\NodeInterface;
 use Drupal\block_content\BlockContentInterface;
 class BaseServiceEntityInlineTemplate
 {
+   public function baseTheme($theme){
+     $enabled_themes = \Drupal::service('theme_handler')->listInfo();
+     $themebase = \Drupal::service('theme_handler')->getBaseThemes($enabled_themes, $theme );
+     $base = false;
+     if(!empty($themebase)){
+       $thmes = array_keys($themebase);
+       $base = end($thmes) ;
+     }
+     return  $base;
+   }
     public function isAllowed($path_theme)
     {
         $path_array = explode('/', $path_theme);
