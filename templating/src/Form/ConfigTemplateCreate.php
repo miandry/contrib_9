@@ -40,12 +40,15 @@ class ConfigTemplateCreate extends FormBase
                     1 => 'Node',
                     2 => 'View',
                     3 => 'Custom',
-                    //   4 =>'Region',
+                    4 =>'User',
                     //    5 =>'Block'
                     6 => 'Field',
                 ],
                 '#required' => true,
             ];
+        }
+        if ($this->step == 4) {
+          $form = TemplatingForm::userForm($form);
         }
         if ($this->step == 1) {
             $form = TemplatingForm::nodeForm($form);
@@ -127,12 +130,13 @@ class ConfigTemplateCreate extends FormBase
             $theme = isset($values["theme"]) ? $values["theme"] : "";
             $config_name = null;
             $config_name_init = null;
+
             //views
             if (isset($values['view_name'])) {
                 $form_state->setRebuild();
                 $this->step = -3;
                 $this->elements['view_name'] = $values['view_name'];
-          
+
             }
             if (isset($values['view_display'])) {
                 $configs = TemplatingForm::viewFormSubmit($values);
@@ -141,7 +145,15 @@ class ConfigTemplateCreate extends FormBase
                 $bundle = $configs['bundle'];
                 $values['mode_view'] =  $configs['mode_view'];
             }
-            
+          // template user
+          if (isset($values['mode_view_user'])) {
+            $configs = TemplatingForm::userFormSubmit($values);
+            if (isset($configs['name'])) {
+              $config_name = $configs['name'];
+              $config_name_init = $configs['entity_type'];
+              $bundle = $configs['bundle'];
+            }
+          }
 
             // template block_content
             if (isset($values['blocktype'])) {
@@ -179,8 +191,17 @@ class ConfigTemplateCreate extends FormBase
                     $bundle = $configs['bundle'];
                 }
             }
+          if (isset($values['custom'])) {
+            $configs = TemplatingForm::customFormSubmit($values);
+            if (isset($configs['name'])) {
+              $config_name = $configs['name'];
+              $config_name_init = $configs['entity_type'];
+              $bundle = "custom";
+            }
+          }
 
-            // saving section
+
+          // saving section
             if ($config_name && $config_name_init) {
                 // $names = $this->configFactory()->listAll("template.");
                 $services = \Drupal::service('templating.manager');

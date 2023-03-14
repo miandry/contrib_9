@@ -59,9 +59,46 @@ class DefaultTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('render_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_inline_template_twig']),
             new \Twig_SimpleFunction('DRUPAL_ROOT', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'DRUPAL_ROOT_TWIG']),
             new \Twig_SimpleFunction('path_templating', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'path_templating']),
+            new \Twig_SimpleFunction('render_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template']),
+            new \Twig_SimpleFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
 
         ];
     }
+  public static function render_template_user($content,$user,$view_mode)
+  {
+    $services = \Drupal::service('templating.manager');
+    $output = false ;
+    $current_theme = \Drupal::theme()->getActiveTheme();
+    $theme = $current_theme->getName();
+    $config_name_id = $services->formatName("user--" .$theme . "-" .$uid . "-" . trim($view_mode) . ".html.twig");
+    $hook_name_base =  $services->formatName("user--".$theme."-".$view_mode.".html.twig");
+    $content_base =  $services ->getTemplatingByTitle($hook_name_base);
+    if (is_object($content_base)) {
+      $output = $content_base->field_templating_html->value;
+    }
+
+    $content_basee_id =  $services ->getTemplatingByTitle($config_name_id);
+    if (is_object($content_basee_id)) {
+      $output = $content_basee_id->field_templating_html->value;
+    }
+    if ($output) {
+      return [
+        '#type' => 'inline_template',
+        '#template' => $output,
+        '#context' => [
+          'content' => $content,
+          'user' => $user,
+          'view_mode' => $view_mode
+        ],
+      ];
+    }
+    return false;
+  }
+   public static function render_template($content)
+   {
+     $services = \Drupal::service('templating.manager');
+     return $services->getRenderTemplate($content);
+   }
     public static function render_template_block_twig($content)
     {   $entity = false ;
         $is_edit_layout_builder = isset($content['content']) && $content['content'] && $content['actions'];

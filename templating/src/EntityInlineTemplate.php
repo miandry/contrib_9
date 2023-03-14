@@ -230,5 +230,29 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
       $themeHandler = \Drupal::service('theme_handler');
       $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
       return (DRUPAL_ROOT.'/'.$themePath.'/templates/templating/'.$file_name);
-}
+  }
+  public function getRenderTemplate($content){
+     // comment.html.twig
+     if(isset($content['comment_body'])){
+       $output = false ;
+       $current_theme = \Drupal::theme()->getActiveTheme();
+       $theme = $current_theme->getName();
+       $hook_name_base = $this->formatName("comment--".$theme."-.html.twig");
+       $content_base = $this->getTemplatingByTitle($hook_name_base);
+       if (is_object($content_base)) {
+         $output = $content_base->field_templating_html->value;
+       }
+       if ($output) {
+         return [
+           '#type' => 'inline_template',
+           '#template' => $output,
+           '#context' => [
+             'content' => $content
+           ],
+         ];
+       }
+       return false;
+     }
+
+  }
 }

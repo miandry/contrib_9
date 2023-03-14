@@ -7,6 +7,91 @@ namespace Drupal\templating\Form;
  */
 class TemplatingForm
 {
+    public static function userForm($form){
+        $services = \Drupal::service('templating.manager');
+        $themes = $services->getThemeList();
+        $defaultThemeName = \Drupal::config('system.theme')->get('default');
+        $theme_options = [];
+        foreach ($themes as $theme) {
+            $theme_options[$theme] = $theme;
+        }
+        $form['theme'] = [
+            '#type' => 'select',
+            '#title' => t('Theme'),
+            '#options' => $theme_options,
+            '#required' => true,
+            '#default_value' => $defaultThemeName,
+        ];
+        $mode_views = $services::getModeViewList('user');
+        $form['mode_view_user'] = [
+            '#type' => 'select',
+            '#title' => t('Mode view '),
+            '#options' => $mode_views,
+            '#required' => true,
+        ];
+        $form['uid'] = [
+            '#type' => 'textfield',
+            '#title' => t('UID'),
+            '#description' => t('Leave empty , if you want to apply for all users'),
+            '#default_value' => '',
+        ];
+        return $form;
+    }
+    public static function userFormSubmit($values)
+    {
+        $config_name = null;
+        if (isset($values['mode_view_user']) &&
+            isset($values['theme'])) {
+            if ($values['uid'] != "") {
+                $user = \Drupal::entityTypeManager()->getStorage('user')->load(trim($values['uid']));
+                if (is_object($user)) {
+                    $config_name = "user--" . $values['theme'] . "-" . trim($values['uid']) . "-" . trim($values['mode_view_user']) . ".html.twig";
+                }
+            } else {
+                $config_name = "user--" . $values['theme']  . '-' . trim($values['mode_view_user']) . '.html.twig';
+            }
+        }
+        return [
+            "name" => $config_name,
+            "entity_type" => "user",
+            "bundle" => "user"
+        ];
+    }
+    public static function customForm($form){
+      $services = \Drupal::service('templating.manager');
+      $themes = $services->getThemeList();
+      $defaultThemeName = \Drupal::config('system.theme')->get('default');
+      $theme_options = [];
+      foreach ($themes as $theme) {
+        $theme_options[$theme] = $theme;
+      }
+      $form['theme'] = [
+        '#type' => 'select',
+        '#title' => t('Theme'),
+        '#options' => $theme_options,
+        '#required' => true,
+        '#default_value' => $defaultThemeName,
+      ];
+      $form['custom'] = [
+        '#type' => 'textfield',
+        '#title' => t('Custom name'),
+        '#description' => t('Example : comment.html.twig'),
+        '#default_value' => '',
+      ];
+      return $form;
+    }
+
+  public static function customFormSubmit($values)
+  {
+    $config_name = null;
+    if (isset($values['custom'])) {
+          $config_name = $values['custom'];
+    }
+    return [
+      "name" => $config_name,
+      "entity_type" => "custom"
+    ];
+  }
     public static function nodeForm($form)
     {
         $services = \Drupal::service('templating.manager');

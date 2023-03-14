@@ -129,11 +129,17 @@ function templating_theme_suggestions_block_alter(&$suggestions, $variables) {
 function templating_theme_registry_alter(&$theme_registry) {
      $service = \Drupal::service('templating.manager');
     if($service->is_allowed()){
-
-      $theme_registry['block']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
-      $theme_registry['html']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
-      $theme_registry['node']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
-      $theme_registry['views_view']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+   //   $theme_registry['block']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+    //  $theme_registry['html']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+    //  $theme_registry['node']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+    //  $theme_registry['views_view']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+    //  $theme_registry['comment']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+      foreach (   $theme_registry as $key => $item){
+        $file = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc/'.$item['template'].'.html.twig' ;
+        if(file_exists($file)){
+          $theme_registry[$key]['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
+        }
+      }
 
     }
 }
@@ -155,7 +161,9 @@ function templating_preprocess_html(&$variables) {
         $variables['library_template'] = $service->generateLibrary();
      }
 }
-
+function templating_preprocess_user(&$variables) {
+  $variables['view_mode'] = isset($variables['elements']['#view_mode'])? $variables['elements']['#view_mode'] : 'full';
+}
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
@@ -281,7 +289,9 @@ function templating_theme_suggestions_user_alter(&$suggestions, $vars, $hook) {
 
   // Define the view mode.
   $mode = $vars['elements']['#view_mode'];
-
+  $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+  $theme = $activeThemeName->getName();
+  $suggestions[] = 'user__'.$theme.'_'.$mode;
   // Create a theme hook suggestion which has the view mode name in it.
   $suggestions[] = 'user__' . $mode;
 }
@@ -320,4 +330,7 @@ function templating_preprocess_node(&$variables){
 
   }
 
+
 }
+
+
