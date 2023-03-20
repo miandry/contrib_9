@@ -541,7 +541,7 @@ not set to TRUE. Excel export aborted.");
             $this->invoke('import', 'row', $row, $xls_reader, $options);
 
             foreach ($cells as $cell) {
-              $value = $cell->getValue();
+              $value = $cell->getFormattedValue();
               $value = mb_strlen($value) ? trim($value) : '';
 
               if (!$j && $keyed_by_headers) {
