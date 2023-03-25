@@ -48,11 +48,12 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 
   function getEntityFromVariable($var, $entity = null)
   {
-    if ($entity == "block"  &&  $var["content"]['#block_content']) {
+    if ($entity == "block"  && isset($var["content"]['#block_content'])) {
       $content = $var["content"];
       $entity_result =  (is_object($content['#block_content']))? $content['#block_content'] : $content['content']['#block_content'];
     } else {
-      $entity_result = $var['elements']["#" . $entity];
+
+      $entity_result =    isset($var['elements']["#" . $entity])?$var['elements']["#" . $entity]:null;
     }
 
     return $entity_result;
