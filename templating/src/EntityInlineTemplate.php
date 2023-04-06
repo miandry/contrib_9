@@ -59,6 +59,20 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     return $entity_result;
 
   }
+  function getTemplatingDatabaseCustom($hook_name)
+  {
+    $theme = $this->is_allowed();
+    if (!$theme) {
+      return false;
+    }
+    $output = false;
+    $content = $this->getTemplatingByTitle($hook_name);
+    if (is_object($content)) {
+      $output = $content->field_templating_html->value;
+    }
+
+    return $output;
+  }
 
   function getTemplatingDatabase($entity, $mode_view = null)
   {
@@ -263,29 +277,35 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/' . $file_name);
   }
 
-  public function getRenderTemplate($content)
+  public function getRenderTemplateCustom($content)
   {
-    // comment.html.twig
-    if (isset($content['comment_body'])) {
-      $output = false;
-      $current_theme = \Drupal::theme()->getActiveTheme();
-      $theme = $current_theme->getName();
-      $hook_name_base = $this->formatName("comment--" . $theme . "-.html.twig");
+    $output = false;
+    $current_theme = \Drupal::theme()->getActiveTheme();
+    $theme = $current_theme->getName();
+    if(isset($content['element']) && isset($content['element']['form_id']) && isset($content['element']['form_id']['#id'])){
+      $hook_name_base = $this->formatName("custom--".$theme."-".$content['element']['form_id']['#id'].".html.twig");
       $content_base = $this->getTemplatingByTitle($hook_name_base);
       if (is_object($content_base)) {
         $output = $content_base->field_templating_html->value;
       }
-      if ($output) {
-        return [
-          '#type' => 'inline_template',
-          '#template' => $output,
-          '#context' => [
-            'content' => $content
-          ],
-        ];
-      }
-      return false;
     }
-
+    // comment.html.twig
+    if (isset($content['comment_body'])) {
+      $hook_name_base = $this->formatName("comment--" . $theme . ".html.twig");
+      $content_base = $this->getTemplatingByTitle($hook_name_base);
+      if (is_object($content_base)) {
+        $output = $content_base->field_templating_html->value;
+      }
+    }
+    if ($output) {
+      return [
+        '#type' => 'inline_template',
+        '#template' => $output,
+        '#context' => [
+          'var_template' => $content
+        ],
+      ];
+    }
+    return false;
   }
 }

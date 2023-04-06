@@ -179,7 +179,6 @@ function templating_form_alter(&$form, FormStateInterface $form_state, $form_id)
         return;
   }
    if($form_id == 'node_templating_edit_form'){
-
        $form['field_templating_mode_view']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
        $form['field_templating_theme']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
        $form['field_templating_entity_type']['widget'][0]['value']['#attributes'] = ['readonly' => 'readonly'];
@@ -283,6 +282,14 @@ function templating_node_update(NodeInterface $node) {
     $response->send();
   }
 }
+function templating_theme_suggestions_form_alter(&$suggestions, $vars, $hook) {
+
+  // Define the view mode.
+  $id = $vars['element']['form_id']['#id'];
+  $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+  $theme = $activeThemeName->getName();
+  $suggestions[] = 'custom__'.$theme.'_'.$id;
+}
 /**
  * Implements hook_theme_suggestions_user_alter().
  *
@@ -306,7 +313,18 @@ function templating_preprocess_block(&$variables){
   if($service->is_allowed()){
     $variables["var_template"] = $variables ;
   }
-
+}
+function templating_preprocess_form(&$variables){
+  $service = \Drupal::service('templating.manager');
+  if($service->is_allowed()){
+    $variables["var_template"] = $variables ;
+  }
+}
+function templating_preprocess_field(&$variables){
+  $service = \Drupal::service('templating.manager');
+  if($service->is_allowed()){
+    $variables["var_template"] = $variables ;
+  }
 }
 
 function templating_preprocess_user(&$variables) {
@@ -351,8 +369,6 @@ function templating_preprocess_node(&$variables){
               'entity' => $entity
           ],
       ];
-
-
     $variables['#cache']['max-age'] = 0;
 
   }

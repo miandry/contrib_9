@@ -97,7 +97,7 @@ class DefaultTwigExtension extends \Twig_Extension
    public static function render_template($content)
    {
      $services = \Drupal::service('templating.manager');
-     return $services->getRenderTemplate($content);
+     return $services->getRenderTemplateCustom($content);
    }
     public static function render_template_block_twig($content)
     {   $entity = false ;
