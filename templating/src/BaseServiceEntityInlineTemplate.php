@@ -207,7 +207,7 @@ class BaseServiceEntityInlineTemplate
         $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
         $theme = $activeThemeName->getName();
         $list = \Drupal::entityTypeManager()->getStorage('node')
-                ->loadByProperties(['type' => 'templating','field_templating_theme' => $theme]);
+                ->loadByProperties(['status'=>1,'type' => 'templating','field_templating_theme' => $theme]);
         $asset['css'] = "";
         $asset['js'] = "";
         foreach ($list as $item){

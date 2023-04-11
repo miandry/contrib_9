@@ -86,11 +86,6 @@ function templating_theme_suggestions_block_alter(&$suggestions, $variables) {
         $id = $content['#block_content']->id();
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
-        $suggestions[] = 'block_content__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
-        $suggestions[] = 'block_content__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
-
-
-
     }
 //    if(isset($content['content'])
 //    && $content['content']['#block_content'] instanceof \Drupal\block_content\BlockContentInterface){
@@ -158,14 +153,22 @@ function templating_preprocess_html(&$variables) {
         $variables['html_page'] = $service->htmlPage();
         $config = \Drupal::config('portotheme_style_switcher.theme_style');
         $content = $config->get('css');
+        $css_theme = "";
         if($config && $config->get('css')){
-           $variables['css_template'] = $config->get('css').$asset["css"] ;
-        }else{
-           $variables['css_template'] = $asset["css"] ;
+           $css_theme = $config->get('css').$asset["css"] ;
         }
+        $variables['css_template'] =  $css_theme.' '.$asset["css"] ;
         $variables['js_template'] = $asset["js"] ;
         $variables['library_template'] = $service->generateLibrary();
+        $node = \Drupal::request()->attributes->get('node');
+        if ($node && $node->bundle() == 'html_page' && $is_ready) {
+          $variables['#cache']['max-age'] = 0;
+        }
      }
+  
+
+
+
 }
 
 /**
