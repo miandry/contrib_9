@@ -79,9 +79,9 @@ function template_preprocess_views_view_footable(&$variables) {
     elseif (is_numeric($field_handler->last_render)) {
       $variables['header'][$field]['attributes']['data-type'] = 'numeric';
     }
-    elseif (!empty($field_handler->last_render) && mb_strlen($field_handler->last_render->__toString()) != mb_strlen(strip_tags($field_handler->last_render->__toString()))) {
-      $variables['header'][$field]['attributes']['data-type'] = 'html';
-    }
+  //  elseif (!empty($field_handler->last_render) && mb_strlen($field_handler->last_render->__toString()) != mb_strlen(strip_tags($field_handler->last_render->__toString()))) {
+  //    $variables['header'][$field]['attributes']['data-type'] = 'html';
+  //  }
     else {
       $variables['header'][$field]['attributes']['data-type'] = 'text';
     }
