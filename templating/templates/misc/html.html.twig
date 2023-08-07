@@ -43,10 +43,10 @@
     <head-placeholder token="{{ placeholder_token }}">
     <css-placeholder token="{{ placeholder_token }}">
     <js-placeholder token="{{ placeholder_token }}">
-    {% if library_template["css_header"] %}
+    {% if library_template && library_template["css_header"] %}
         {{library_template["css_header"]|raw}}
     {% endif %}
-    {% if library_template["js_header"] %}
+    {% if library_template && library_template["js_header"] %}
         {{library_template["js_header"]|raw}}
     {% endif %}
     <style>{{ css_template|raw }}</style>

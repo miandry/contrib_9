@@ -137,7 +137,7 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   function generateLibrary()
   {
     $libs = $this->getLibrary();
-    $output = false;
+    $output = [];
     if ($libs) {
       $url = Url::fromRoute('<current>');
       $str_url = \Drupal::service('path_alias.manager')->getAliasByPath($url->toString());
@@ -181,6 +181,7 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
           }
           // if css or js
           if ($url) {
+            if(!isset($output[$type . '_' . $position])){ $output[$type . '_' . $position] = "" ;}
             if ($type == "css") {
               $output[$type . '_' . $position] = $output[$type . '_' . $position] . '<link rel="stylesheet" href="' . $url . '" crossorigin="" />';
             }
@@ -307,5 +308,21 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
       ];
     }
     return false;
+  }
+  function addLibrary(){
+    $library_name = 'templating/confirmjs';
+    $library_definition = [
+      'version' => '1.x',
+      'js' => [
+        'https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js' => [],
+      ],
+      'dependencies' => [
+        'core/jquery',
+      ],
+    ];
+  
+    // Add or modify the library definition.
+    \Drupal::service('library.discovery')->setLibraryInfo($library_name, $library_definition);
+  
   }
 }
