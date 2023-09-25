@@ -83,7 +83,7 @@ class ConfigTemplateSetting extends FormBase
             $options = UrlHelper::parse($query->get('destination'));
             $url = Url::fromUri('internal:/' . $options['path'], $options);
         } else {
-          //  $url = Url::fromRoute('templating.manager');
+            $url = Url::fromRoute('view.templating.page_1');
         }
 
         return $url;
@@ -102,43 +102,7 @@ class ConfigTemplateSetting extends FormBase
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
         $values = $form_state->getValues();
-            // saving section
-      //      $libraries = array();
-            // $themes = system_list('theme');
-            // foreach ($themes as $key => $value) {
-            //   $theme_config = $key.".settings_library";
-            //   $config = \Drupal::config( $theme_config);
-            //   $spt_table = $config->get('spt_table');
-            //   if(!empty($spt_table)){
-            //      foreach ($spt_table as $key_lib => $item_lib) {
-            //        if($item_lib['status'] == 1){
-            //           if(!isset($libraries[$item_lib['name']])){
-            //             $str[$item_lib['name']] =  "{{ attach_library('mz_lib/".$item_lib['name']."') }}<br/>";
-            //           }
-            //        }
-            //      }
-            //   }
-            // }
-//        $content_lib =  "" ;
-//        if(isset($values['enabled_lib']) && $values['enabled_lib'] == 1){
-//            $entityTypeManager = \Drupal::service('entity_type.manager');
-//            $types = [];
-//            $contentTypes = $entityTypeManager->getStorage('node_type')->loadMultiple();
-//            $is_exist = false ;
-//            foreach ($contentTypes as $contentType) {
-//                if($contentType->id() == 'library'){
-//                    $is_exist = true ;
-//                }
-//
-//            }
-//            if( $is_exist ){
-//                //load your field
-//                $field_theme = \Drupal\field\Entity\FieldStorageConfig::loadByName('node', 'field_theme');
-//                $field_theme->setSetting('allowed_values_function','_templating_theme_allowed_values_function' );
-//                $field_theme->save();
-//            }
-//
-//        }
+        $values['disable'] = isset($values['disable'])? $values['disable'] : 0 ;
         $this->configFactory()->getEditable('template_inline.settings')
                         ->set('disable', $values['disable'])
                   //      ->set('content_lib', $content_lib )

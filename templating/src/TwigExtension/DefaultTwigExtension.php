@@ -61,9 +61,16 @@ class DefaultTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('path_templating', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'path_templating']),
             new \Twig_SimpleFunction('render_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template']),
             new \Twig_SimpleFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
-
+            new \Twig_SimpleFunction('render_css', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_css_twig']),
         ];
     }
+
+    
+    public static function render_css_twig($css,$block_name)
+  {
+    $services = \Drupal::service('templating.manager');
+    $services->assetCSSTemplateTheme($css,$block_name);
+  }  
   public static function render_template_user($content,$user,$view_mode)
   {
     $services = \Drupal::service('templating.manager');

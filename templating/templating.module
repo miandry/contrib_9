@@ -157,7 +157,8 @@ function templating_preprocess_html(&$variables) {
         if($config && $config->get('css')){
            $css_theme = $config->get('css').$asset["css"] ;
         }
-        $variables['css_template'] =  $css_theme.' '.$asset["css"] ;
+        $asset_css_file = $service->buildCSSTemplateTheme();
+        $variables['css_template'] =  $css_theme.' '.$asset["css"].' '.$asset_css_file ;
         $variables['js_template'] = $asset["js"] ;
         $variables['library_template'] = $service->generateLibrary();
         $node = \Drupal::request()->attributes->get('node');

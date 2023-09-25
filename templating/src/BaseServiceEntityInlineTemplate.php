@@ -225,6 +225,27 @@ class BaseServiceEntityInlineTemplate
         }
         return  $asset ;
     }
+    public function assetCSSTemplateTheme($css,$block_name){
+        $config_settings = \Drupal::config("template_inline.settings") ;
+        $current_css = $config_settings->get('asset_css');
+        $current_css[$block_name] = $css ;
+        \Drupal::configFactory()->getEditable('template_inline.settings')
+        ->set('asset_css', $current_css)
+        ->save();
+    }
+    public function buildCSSTemplateTheme(){
+        $config_settings = \Drupal::config("template_inline.settings") ;
+        $current_css = $config_settings->get('asset_css');
+        $asset_css = "";
+        if(!empty($current_css) ){
+            foreach ($current_css as $key=> $item){
+                $css = $this->minify(" /* " . $key . " */ " . $item);
+                $asset_css = $asset_css.$css;
+            }
+        }
+
+        return  $asset_css ;
+    }
     public function getTemplatingByEntity($entity){
 
         $theme = $this->is_allowed();
