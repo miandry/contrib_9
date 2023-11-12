@@ -20,7 +20,7 @@ function simplify_menu_test_page_top(array &$page_top) {
 function simplify_menu_test_theme() {
   return [
     'simplify_menu_test' => [
-      'path' => drupal_get_path('module', 'simplify_menu_test') . '/templates',
+      'path' => \Drupal::service('extension.list.module')->getPath('simplify_menu_test') . '/templates',
       'variables' => [
         'content' => NULL,
       ],

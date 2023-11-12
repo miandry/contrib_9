@@ -2,11 +2,11 @@ CONTENTS OF THIS FILE
 ---------------------
 
  * Introduction
- * How to use
  * Requirements
  * Installation
  * How to Use
  * Maintainers
+ * Supporting Organizations
 
 
 INTRODUCTION
@@ -42,11 +42,13 @@ INSTALLATION
 HOW TO USE
 ----------
 
+Here's a simple example on how to use this module.  However, there are more
+advanced use cases where this module can be very handy.
 ```
 {# Get menu items #}
 {% set items = simplify_menu('main') %}
 
-{# Iterate menu tree #}
+{# Iterate menu tree/render array #}
 <nav class="navigation__items">
   {% for menu_item in items.menu_tree %}
     <li class="navigation__item">
@@ -64,7 +66,9 @@ MAINTAINERS
  * Jesus Manuel Olivas (jmolivas) - https://www.drupal.org/u/jmolivas
  * Mario Hernandez (mariohernandez) - https://www.drupal.org/u/mariohernandez
 
-Supporting organizations:
+
+SUPPORTING ORGANIZATIONS
+------------------------
 
  * WeKnow - https://www.drupal.org/weknow
  * Government By Design LLC - https://www.drupal.org/government-by-design-llc

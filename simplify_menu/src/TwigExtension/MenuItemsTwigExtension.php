@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Drupal\simplify_menu\TwigExtension;
 
 use Drupal\simplify_menu\MenuItems;
+use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
 
 /**
  * Class MenuItemsTwigExtension.
  *
  * @package Drupal\simplify_menu
  */
-class MenuItemsTwigExtension extends \Twig_Extension {
+class MenuItemsTwigExtension extends AbstractExtension {
 
   /**
    * MenuItems definition.
@@ -35,7 +37,7 @@ class MenuItemsTwigExtension extends \Twig_Extension {
    */
   public function getFunctions(): array {
     return [
-      new \Twig_SimpleFunction('simplify_menu',
+      new TwigFunction('simplify_menu',
       function ($menuId = NULL) {
         return $this->menuItems->getMenuTree($menuId);
       },

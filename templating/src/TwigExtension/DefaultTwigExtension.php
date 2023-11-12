@@ -2,10 +2,13 @@
 
 namespace Drupal\templating\TwigExtension;
 
+
+use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
 /**
  * Class DefaultTwigExtension.
  */
-class DefaultTwigExtension extends \Twig_Extension
+class DefaultTwigExtension extends AbstractExtension
 {
 
     /**
@@ -46,22 +49,22 @@ class DefaultTwigExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('spacer_top', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'spacer_top_twig']),
-            new \Twig_SimpleFunction('spacer_bottom', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'spacer_bottom_twig']),
+            new TwigFunction('spacer_top', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'spacer_top_twig']),
+            new TwigFunction('spacer_bottom', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'spacer_bottom_twig']),
 
-            new \Twig_SimpleFunction('file_exists', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'file_exists_twig']),
+            new TwigFunction('file_exists', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'file_exists_twig']),
 
-            new \Twig_SimpleFunction('template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'template_twig']),
-            new \Twig_SimpleFunction('render_node_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_node_inline_template_twig']),
-            new \Twig_SimpleFunction('render_template_node', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_node_twig']),
-            new \Twig_SimpleFunction('render_template_block', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_block_twig']),
+            new TwigFunction('template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'template_twig']),
+            new TwigFunction('render_node_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_node_inline_template_twig']),
+            new TwigFunction('render_template_node', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_node_twig']),
+            new TwigFunction('render_template_block', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_block_twig']),
 
-            new \Twig_SimpleFunction('render_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_inline_template_twig']),
-            new \Twig_SimpleFunction('DRUPAL_ROOT', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'DRUPAL_ROOT_TWIG']),
-            new \Twig_SimpleFunction('path_templating', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'path_templating']),
-            new \Twig_SimpleFunction('render_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template']),
-            new \Twig_SimpleFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
-            new \Twig_SimpleFunction('render_css', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_css_twig']),
+            new TwigFunction('render_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_inline_template_twig']),
+            new TwigFunction('DRUPAL_ROOT', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'DRUPAL_ROOT_TWIG']),
+            new TwigFunction('path_templating', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'path_templating']),
+            new TwigFunction('render_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template']),
+            new TwigFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
+            new TwigFunction('render_css', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_css_twig']),
         ];
     }
 
