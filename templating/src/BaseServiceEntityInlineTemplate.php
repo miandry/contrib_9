@@ -146,7 +146,7 @@ class BaseServiceEntityInlineTemplate
         if ($disable) {
             return false;
         }
-        if(!in_array($theme ,$themes)){
+        if($themes && !in_array($theme ,$themes)){
            return false;
         }
         return $theme;
