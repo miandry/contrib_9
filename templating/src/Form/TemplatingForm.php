@@ -309,10 +309,10 @@ class TemplatingForm
             if ($values['blockid'] != "") {
                 $block_custom = \Drupal::entityTypeManager()->getStorage('block_content')->load(trim($values['blockid']));
                 if (is_object($block_custom)) {
-                    $config_name = "block_content--" . $values['theme'] . "-" . trim($values['blocktype']) . "-" . trim($values['blockid']) . "-full.html.twig";
+                    $config_name = "block--" . $values['theme'] . "-" . trim($values['blocktype']) . "-" . trim($values['blockid']) . "-full.html.twig";
                 }
             } else {
-                $config_name = "block_content--" . $values['theme'] . '-' . trim($values['blocktype'] . '-full.html.twig');
+                $config_name = "block--" . $values['theme'] . '-' . trim($values['blocktype'] . '-full.html.twig');
             }
         }
         return [
