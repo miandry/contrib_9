@@ -10,9 +10,10 @@
  * @see template_preprocess_form()
  */
 #}
-{% set output = render_template(var_template) %}
+
+{% set output = render_template_form(var_template,children) %}
 {% if output %}
-  {{  render_template(var_template)}}
+  {{  render_template_form(var_template,children)}}
 {% else %}
     {{spacer_top(content)|raw}}{% block templating_content %}
       <form{{ attributes }}>

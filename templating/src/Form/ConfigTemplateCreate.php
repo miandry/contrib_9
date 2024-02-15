@@ -41,7 +41,7 @@ class ConfigTemplateCreate extends FormBase
                     2 => 'View',
                     3 => 'Custom',
                     4 =>'User',
-                    //    5 =>'Block'
+                    5 =>'Form',
                     6 => 'Field',
                 ],
                 '#required' => true,
@@ -71,6 +71,9 @@ class ConfigTemplateCreate extends FormBase
         }
         if ($this->step == 0) {
             $form = TemplatingForm::blockForm($form);
+        }
+        if ($this->step == 5) {
+            $form = TemplatingForm::formForm($form);
         }
         $form['actions'] = ['#type' => 'actions'];
         $form['actions']['submit'] = [
@@ -154,6 +157,16 @@ class ConfigTemplateCreate extends FormBase
               $bundle = $configs['bundle'];
             }
           }
+
+              // template block_content
+            if (isset($values['form_entity'])) {
+                $configs = TemplatingForm::formFormSubmit($values);
+                if (isset($configs['name'])) {
+                    $config_name = $configs['name'];
+                    $config_name_init = $configs['entity_type'];
+                    $bundle = $configs['bundle'];
+                }
+            }
 
             // template block_content
             if (isset($values['blocktype'])) {

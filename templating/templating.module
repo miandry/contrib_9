@@ -136,14 +136,16 @@ function templating_theme_registry_alter(&$theme_registry) {
     //  $theme_registry['views_view']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
     //  $theme_registry['comment']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
       foreach (   $theme_registry as $key => $item){
+       // kint($item['template']);
         $file = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc/'.$item['template'].'.html.twig' ;
         if(file_exists($file)){
           $theme_registry[$key]['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
         }
-      }
+      } 
 
     }
 }
+
 function templating_preprocess_html(&$variables) {
      $service = \Drupal::service('templating.manager');
      $asset = $service->getAllAsset();
@@ -287,12 +289,16 @@ function templating_node_update(NodeInterface $node) {
   }
 }
 function templating_theme_suggestions_form_alter(&$suggestions, $vars, $hook) {
-
+  $service = \Drupal::service('templating.manager');
   // Define the view mode.
-  $id = $vars['element']['form_id']['#id'];
-  $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
-  $theme = $activeThemeName->getName();
-  $suggestions[] = 'custom__'.$theme.'_'.$id;
+  $entity_type = $vars['element']['#entity_type'];
+  $bundle = $service->getTargetBundleForm($vars);
+  if( $entity_type && $bundle){
+    $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+    $theme = $activeThemeName->getName();
+    $suggestions[] = "form__".$entity_type."_". $theme . "_".$bundle."_full";      
+  }
+
 }
 /**
  * Implements hook_theme_suggestions_user_alter().
@@ -324,6 +330,10 @@ function templating_preprocess_form(&$variables){
     $variables["var_template"] = $variables ;
   }
 }
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for form elements.
+ */
+
 function templating_preprocess_field(&$variables){
   $service = \Drupal::service('templating.manager');
   if($service->is_allowed()){

@@ -6,7 +6,70 @@ namespace Drupal\templating\Form;
  * Class TemplatingForm.
  */
 class TemplatingForm
-{
+{   
+    public static function formForm($form){
+    $services = \Drupal::service('templating.manager');
+    $themes = $services->getThemeList();
+    $defaultThemeName = \Drupal::config('system.theme')->get('default');
+    $theme_options = [];
+    foreach ($themes as $theme) {
+        $theme_options[$theme] = $theme;
+    }
+    $form['theme'] = [
+        '#type' => 'select',
+        '#title' => t('Theme'),
+        '#options' => $theme_options,
+        '#required' => true,
+        '#default_value' => $defaultThemeName,
+    ];
+    $form['form_entity'] = [
+        '#type' => 'select',
+        '#title' => t('Entity'),
+        '#options' => ["node"=>"node","user"=>"user"],
+        '#required' => true,
+    ];
+
+    $bundle_list_name = \Drupal::service('entity_type.bundle.info')->getBundleInfo('node');
+    $bundle_options = [];
+    foreach (array_keys($bundle_list_name) as $type) {
+        $bundle_options[$type] = $type;
+    }
+    $bundle_options["user"] = "user";
+    $form['bundle'] = [
+        '#type' => 'select',
+        '#title' => t('Bundle'),
+        '#options' => $bundle_options,
+        '#required' => true,
+    ];
+    $form['id'] = [
+        '#type' => 'textfield',
+        '#title' => t('ID'),
+        '#description' => t('Leave empty , if you want to apply for all'),
+        '#default_value' => '',
+    ];
+    return $form;
+    }
+    public static function formFormSubmit($values)
+    {
+        $config_name = null;
+        if (isset($values['form_entity']) &&
+            isset($values['bundle']) &&
+            isset($values['theme'])) {
+            if ($values['id'] != "") {
+                $item = \Drupal::entityTypeManager()->getStorage($values['entity'])->load(trim($values['id']));
+                if (is_object($item)) {
+                    $config_name = "form--".$values['form_entity']."-". $values['theme'] . "-".$values['bundle']."-" . trim($values['id']) . "-full.html.twig";
+                }
+            } else {
+                $config_name = "form--".$values['form_entity']."-". $values['theme'] . "-".$values['bundle']."-full.html.twig";
+            }
+        }
+        return [
+            "name" => $config_name,
+            "entity_type" => $values['form_entity'],
+            "bundle" => $values['bundle']
+        ];
+    }
     public static function userForm($form){
         $services = \Drupal::service('templating.manager');
         $themes = $services->getThemeList();
@@ -245,6 +308,7 @@ class TemplatingForm
         ];
         return $form;
     }
+    
     //field submit
     public static function fieldFormSubmit($values)
     {

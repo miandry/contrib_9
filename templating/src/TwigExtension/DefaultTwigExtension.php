@@ -65,6 +65,8 @@ class DefaultTwigExtension extends AbstractExtension
             new TwigFunction('render_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template']),
             new TwigFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
             new TwigFunction('render_css', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_css_twig']),
+            new TwigFunction('render_template_form', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_form']),
+   
         ];
     }
 
@@ -104,6 +106,12 @@ class DefaultTwigExtension extends AbstractExtension
     }
     return false;
   }
+  public static function render_template_form($content,$children)
+  {
+    $services = \Drupal::service('templating.manager');
+    return $services->getRenderTemplateForm($content);
+  }
+
    public static function render_template($content)
    {
      $services = \Drupal::service('templating.manager');

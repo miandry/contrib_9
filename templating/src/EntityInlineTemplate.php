@@ -7,6 +7,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 
 class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 {
@@ -269,7 +270,22 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $diffFormatter->show_header = FALSE;
     return $diffFormatter->format($diff);
   }
-
+  public function getTargetBundleForm($variables){
+    if(isset($variables["element"]) &&
+    isset($variables["element"]["#process"])
+    ){
+    foreach ($variables["element"]["#process"] as $key => $item) { 
+      if(is_array($item)){
+        foreach ($item as $key_child => $child) { 
+          if($child instanceof EntityFormDisplay) {
+            return ($child->getTargetBundle());
+          }
+        }
+      }
+    }
+    }
+    return false ;
+  }
   public function getFilepathTemplating($template)
   {
     $file_name = ($template->label());
@@ -277,7 +293,45 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
     return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/' . $file_name);
   }
+  public function getRenderTemplateForm($content){
+    $output = false;
+    $current_theme = \Drupal::theme()->getActiveTheme();
+    $theme = $current_theme->getName();
 
+    if(isset($content["element"]) &&
+    isset($content["element"]["#entity_type"]) && 
+    isset($content["element"]["#process"])
+    ){
+      $entity_type = $content["element"]["#entity_type"];
+      $bundle = "";
+      foreach ($content["element"]["#process"] as $key => $item) { 
+          if(is_array($item)){
+            foreach ($item as $key_child => $child) { 
+              if($child instanceof EntityFormDisplay) {
+                $bundle = ($child->getTargetBundle());
+              }
+            }
+          }
+      }
+      $hook_name_base = $this->formatName("form--".$entity_type."-". $theme . "-".$bundle."-full.html.twig");   
+      $content_base = $this->getTemplatingByTitle($hook_name_base);
+      if (is_object($content_base)) {
+        $output = $content_base->field_templating_html->value;
+      }
+    }
+    if ($output) {
+        return [
+          '#type' => 'inline_template',
+          '#template' => $output,
+          '#context' => [
+            'content' => $content
+          ],
+        ];
+    
+    }
+    return false ;
+
+  }
   public function getRenderTemplateCustom($content)
   {
     $output = false;
