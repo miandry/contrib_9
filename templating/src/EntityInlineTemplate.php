@@ -297,10 +297,12 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $output = false;
     $current_theme = \Drupal::theme()->getActiveTheme();
     $theme = $current_theme->getName();
-
     if(isset($content["element"]) &&
     isset($content["element"]["#entity_type"]) && 
-    isset($content["element"]["#process"])
+    isset($content["element"]["#process"]) &&
+    $content["element"]["#form_id"] != "user_register_form" &&
+    $content["element"]["#form_id"] != "user_login_form" &&
+    $content["element"]["#form_id"] != "user_pass_form"
     ){
       $entity_type = $content["element"]["#entity_type"];
       $bundle = "";
