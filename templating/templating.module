@@ -291,13 +291,16 @@ function templating_node_update(NodeInterface $node) {
 function templating_theme_suggestions_form_alter(&$suggestions, $vars, $hook) {
   $service = \Drupal::service('templating.manager');
   // Define the view mode.
-  $entity_type = $vars['element']['#entity_type'];
-  $bundle = $service->getTargetBundleForm($vars);
-  if( $entity_type && $bundle){
-    $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
-    $theme = $activeThemeName->getName();
-    $suggestions[] = "form__".$entity_type."_". $theme . "_".$bundle."_full";      
+  if(isset($vars['element']['#entity_type'])){
+    $entity_type = $vars['element']['#entity_type'];
+    $bundle = $service->getTargetBundleForm($vars);
+    if( $entity_type && $bundle){
+      $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+      $theme = $activeThemeName->getName();
+      $suggestions[] = "form__".$entity_type."_". $theme . "_".$bundle."_full";      
+    }
   }
+
 
 }
 /**
