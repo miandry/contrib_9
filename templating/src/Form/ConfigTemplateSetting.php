@@ -59,6 +59,11 @@ class ConfigTemplateSetting extends FormBase
             '#type' => 'submit',
             '#value' => $this->t('Save'),
         ];
+        $form['actions']['submit_reset'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Rebuild Css'),
+            '#submit' => ['::submitButton2'],
+        ];
 
         $form['actions']['cancel'] = array(
             '#type' => 'link',
@@ -110,5 +115,13 @@ class ConfigTemplateSetting extends FormBase
                         ->set('theme', $values['theme'] )
                         ->save();
     }
+     /**
+   * Submit handler for Submit Button 1.
+   */
+  public function submitButton2(array &$form, FormStateInterface $form_state) {
+    \Drupal::messenger()->addStatus($this->t('Css Template Clean'));
+    $this->configFactory()->getEditable('template_inline.settings')->delete();
+
+  }
 
 }
