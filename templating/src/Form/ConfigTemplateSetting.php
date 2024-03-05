@@ -119,8 +119,14 @@ class ConfigTemplateSetting extends FormBase
    * Submit handler for Submit Button 1.
    */
   public function submitButton2(array &$form, FormStateInterface $form_state) {
-    \Drupal::messenger()->addStatus($this->t('Css Template Clean'));
-    $this->configFactory()->getEditable('template_inline.settings')->delete();
+
+    $config = $this->configFactory()->getEditable('template_inline.settings');
+    $current_css = $config->get('asset_css');
+     // Check if the 'asset_css' value exists before attempting to delete it.
+     if ($current_css !== NULL) {
+         $config->clear('asset_css')->save();
+         \Drupal::messenger()->addStatus($this->t('Css Template Cleaned'));
+     }
 
   }
 
