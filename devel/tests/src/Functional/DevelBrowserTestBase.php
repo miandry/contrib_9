@@ -15,7 +15,7 @@ abstract class DevelBrowserTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['devel', 'devel_test', 'block'];
+  public static $modules = ['devel', 'devel_test', 'block'];
 
   /**
    * Admin user.

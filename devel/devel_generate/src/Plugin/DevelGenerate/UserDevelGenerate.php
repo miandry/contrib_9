@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\devel_generate\DevelGenerateBase;
+use Drush\Utils\StringUtils;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -196,7 +197,7 @@ class UserDevelGenerate extends DevelGenerateBase implements ContainerFactoryPlu
     $values = [
       'num' => array_shift($args),
       'time_range' => 0,
-      'roles' => self::csvToArray($options['roles']),
+      'roles' => StringUtils::csvToArray($options['roles']),
       'kill' => $options['kill'],
       'pass' => $options['pass'],
     ];

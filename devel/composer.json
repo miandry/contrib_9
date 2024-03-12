@@ -10,9 +10,8 @@
   "license": "GPL-2.0-or-later",
   "prefer-stable": true,
   "require": {
-    "php": ">=7.4",
     "symfony/var-dumper": "^4 || ^5 || ^6",
-    "doctrine/common": "^2.7 || ^3.4"
+    "doctrine/common": "^2.7"
   },
   "require-dev": {
     "drush/drush": "^11"
@@ -36,8 +35,7 @@
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "cweagans/composer-patches": true,
       "drupal/core-composer-scaffold": true,
-      "drupalspoons/composer-plugin": true,
-      "phpstan/extension-installer": true
+      "drupalspoons/composer-plugin": true
     }
   }
 }

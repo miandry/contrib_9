@@ -486,16 +486,14 @@ if (!function_exists('ksm')) {
  *   Optional name for identifying the output.
  * @param string $type
  *   Optional message type see MessengerInterface, defaults to TYPE_STATUS.
- * @param bool $load_dependencies
- *   Optional load dependencies if an entity is passed.
  *
  * @return input
  *   The unaltered input value.
  *
  * @see \Drupal\devel\DevelDumperManager::message()
  */
-function dpm($input, $name = NULL, $type = MessengerInterface::TYPE_STATUS, $load_dependencies = FALSE) {
-  \Drupal::service('devel.dumper')->message($input, $name, $type, NULL, $load_dependencies);
+function dpm($input, $name = NULL, $type = MessengerInterface::TYPE_STATUS) {
+  \Drupal::service('devel.dumper')->message($input, $name, $type);
   return $input;
 }
 
@@ -510,24 +508,22 @@ function dpm($input, $name = NULL, $type = MessengerInterface::TYPE_STATUS, $loa
  *   An arbitrary value to output.
  * @param string $name
  *   Optional name for identifying the output.
- * @param bool $load_dependencies
- *   Optional load dependencies if an entity is passed.
  *
  * @return mixed
  *   The unaltered input value.
  *
  * @see \Drupal\devel\DevelDumperManager::message()
  */
-function dvm($input, $name = NULL, $load_dependencies = FALSE) {
-  \Drupal::service('devel.dumper')->message($input, $name, MessengerInterface::TYPE_STATUS, 'drupal_variable', $load_dependencies);
+function dvm($input, $name = NULL) {
+  \Drupal::service('devel.dumper')->message($input, $name, MessengerInterface::TYPE_STATUS, 'drupal_variable');
   return $input;
 }
 
 /**
  * An alias for dpm(), for historic reasons.
  */
-function dsm($input, $name = NULL, $load_dependencies = FALSE) {
-  return dpm($input, $name, $load_dependencies);
+function dsm($input, $name = NULL) {
+  return dpm($input, $name);
 }
 
 /**
