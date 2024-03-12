@@ -149,6 +149,7 @@ function templating_theme_registry_alter(&$theme_registry) {
 function templating_preprocess_html(&$variables) {
      $service = \Drupal::service('templating.manager');
      $asset = $service->getAllAsset();
+
      $route = \Drupal::routeMatch()->getRouteObject();
      $is_admin = \Drupal::service('router.admin_context')->isAdminRoute($route);
      if(!$is_admin){
@@ -315,7 +316,7 @@ function templating_theme_suggestions_user_alter(&$suggestions, $vars, $hook) {
   $mode = $vars['elements']['#view_mode'];
   $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
   $theme = $activeThemeName->getName();
-  $suggestions[] = 'user__'.$theme.'_'.$mode;
+  $suggestions[] = 'user__'.$theme.'_user_'.$mode;
   // Create a theme hook suggestion which has the view mode name in it.
   $suggestions[] = 'user__' . $mode;
 }
