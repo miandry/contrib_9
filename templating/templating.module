@@ -317,8 +317,7 @@ function templating_theme_suggestions_user_alter(&$suggestions, $vars, $hook) {
   $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
   $theme = $activeThemeName->getName();
   $suggestions[] = 'user__'.$theme.'_user_'.$mode;
-  // Create a theme hook suggestion which has the view mode name in it.
-  $suggestions[] = 'user__' . $mode;
+
 }
 //
 

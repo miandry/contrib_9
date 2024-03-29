@@ -13,7 +13,9 @@
 
 {% set output = render_template_form(var_template,children) %}
 {% if output %}
-  {{  render_template_form(var_template,children)}}
+     <form{{ attributes }}>
+      {{  render_template_form(var_template,children)}}
+   </form>
 {% else %}
     {{spacer_top(content)|raw}}{% block templating_content %}
       <form{{ attributes }}>
