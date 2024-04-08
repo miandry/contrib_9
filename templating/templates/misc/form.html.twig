@@ -17,11 +17,13 @@
       {{  render_template_form(var_template,children)}}
    </form>
 {% else %}
-    {{spacer_top(content)|raw}}{% block templating_content %}
-      <form{{ attributes }}>
-        {{ children }}
-      </form>
-    {% endblock %}{{spacer_bottom(content)|raw}}
+    {{spacer_top(content)|raw}}
+          <form{{ attributes }}>
+              {% block templating_content %}
+                  {{ children }}
+              {% endblock %}
+          </form>
+    {{spacer_bottom(content)|raw}}
 {% endif %}
 
 
