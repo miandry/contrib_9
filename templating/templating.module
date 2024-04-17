@@ -48,8 +48,11 @@ function templating_theme_suggestions_node_alter(array &$suggestions, array $var
             $theme = $activeThemeName->getName();
             $suggestion_1 = $entity_name."__".$theme."_".$bundle."_".$view_mode ;
             $suggestion_2 = $entity_name."__".$theme."_".$bundle."_".$id."_".$view_mode ;
+            $suggestion_3 = $entity_name."__".$bundle."__".$view_mode ;
+            $suggestions[] = $suggestion_3;
             $suggestions[] = $suggestion_1;
             $suggestions[] = $suggestion_2;
+
         }
         }
 
@@ -71,6 +74,8 @@ function templating_theme_suggestions_taxonomy_term_alter(array &$suggestions, a
             $theme = $activeThemeName->getName();
             $suggestion_1 = $entity_name."__".$theme."_".$bundle."_".$view_mode ;
             $suggestion_2 = $entity_name."__".$theme."_".$bundle."_".$id."_".$view_mode ;
+            $suggestion_3 = $entity_name."__".$bundle."__".$view_mode ;
+            $suggestions[] = $suggestion_3;
             $suggestions[] = $suggestion_1;
             $suggestions[] = $suggestion_2;
         }
@@ -84,18 +89,12 @@ function templating_theme_suggestions_block_alter(&$suggestions, $variables) {
     if (isset($content['#block_content']) && $content['#block_content'] instanceof \Drupal\block_content\BlockContentInterface) {
         $view_mode = $variables['elements']['content']['#view_mode'];
         $id = $content['#block_content']->id();
+        $suggestions[] = 'block__'.$content['#block_content']->bundle()."__".$view_mode;
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
+       
     }
-//    if(isset($content['content'])
-//    && $content['content']['#block_content'] instanceof \Drupal\block_content\BlockContentInterface){
-//        $id = $content['content']['#block_content']->id();
-//        $view_mode = $variables['elements']['content']['content']['#view_mode'];
-//        kint($content['content']['#block_content']);die();
-//       // $suggestions[] = 'block__'.$content['content']['#block_content']->getType();
-//        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$view_mode;
-//        $suggestions[] = 'block__'.$theme.'_'.$content['content']['#block_content']->bundle()."_".$id."_".$view_mode;
-//    }
+
     if (!isset($content['#block_content'])){
         $plugin_id = trim($variables['elements']['#plugin_id']);
         $base_plugin_id = trim($variables['elements']['#base_plugin_id']);
@@ -376,9 +375,7 @@ function templating_preprocess_node(&$variables){
     }else{
       $render = \Drupal::entityTypeManager()->getViewBuilder($type)->view($entity) ;
     }
-
-
-      $variables['output'] =  [
+   $variables['output'] =  [
           '#type' => 'inline_template',
           '#template' => $output,
           '#context' => [
@@ -387,10 +384,7 @@ function templating_preprocess_node(&$variables){
           ],
       ];
     $variables['#cache']['max-age'] = 0;
-
   }
-
-
 }
 
 
