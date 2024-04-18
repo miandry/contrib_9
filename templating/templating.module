@@ -297,6 +297,7 @@ function templating_theme_suggestions_form_alter(&$suggestions, $vars, $hook) {
     if( $entity_type && $bundle){
       $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
       $theme = $activeThemeName->getName();
+      $suggestions[] = "form__".$entity_type."__".$bundle."__full";  
       $suggestions[] = "form__".$entity_type."_". $theme . "_".$bundle."_full";      
     }
   }
@@ -315,7 +316,9 @@ function templating_theme_suggestions_user_alter(&$suggestions, $vars, $hook) {
   $mode = $vars['elements']['#view_mode'];
   $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
   $theme = $activeThemeName->getName();
+  $suggestions[] = 'user__'.$mode;
   $suggestions[] = 'user__'.$theme.'_user_'.$mode;
+
 
 }
 //
