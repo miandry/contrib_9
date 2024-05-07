@@ -138,8 +138,10 @@ class BaseServiceEntityInlineTemplate
 
     public function is_allowed()
     {
-        $current_theme = \Drupal::theme()->getActiveTheme();
-        $theme = $current_theme->getName();
+        //$current_theme = \Drupal::theme()->getActiveTheme();
+        //$theme = $current_theme->getName();
+        $config = \Drupal::config('system.theme');    
+        $theme = $config->get('default');
         $config_settings = \Drupal::config("template_inline.settings");
         $disable = $config_settings->get('disable');
         $themes = $config_settings->get('theme');
@@ -270,9 +272,8 @@ class BaseServiceEntityInlineTemplate
         $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
         $nodes = \Drupal::entityTypeManager()->getStorage('node')
         ->loadByProperties($array);
-
-        if ( empty($nodes) && strpos($hook_name, 'block--') === 0) {
-            $hook_name = str_replace('block--','block-content--', $hook_name);
+        if ( empty($nodes) && strpos($hook_name, 'block-content--') === 0) {
+            $hook_name = str_replace('block-content--','block--', $hook_name);
             $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
             $nodes = \Drupal::entityTypeManager()->getStorage('node')
             ->loadByProperties($array);
