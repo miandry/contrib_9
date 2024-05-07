@@ -278,13 +278,17 @@ class BaseServiceEntityInlineTemplate
             ->loadByProperties($array);
         }
         return  end($nodes);
-
-
     }
     public function is_template_exist($config_name){
         $array = ['type' => 'templating','status' => true ,'title' => $config_name];
         $nodes = \Drupal::entityTypeManager()->getStorage('node')
         ->loadByProperties($array);
+        if ( empty($nodes) && strpos($config_name, 'block--') === 0) {
+            $hook_name = str_replace('block--','block-content--', $hook_name);
+            $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
+            $nodes = \Drupal::entityTypeManager()->getStorage('node')
+            ->loadByProperties($array);
+        }
         if(!empty($nodes)){return true;}else{return false;}
     }
     public function inputChecker($input){
