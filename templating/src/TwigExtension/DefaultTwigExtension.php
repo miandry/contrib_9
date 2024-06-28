@@ -239,7 +239,11 @@ class DefaultTwigExtension extends AbstractExtension
     }
 
     public static function render_inline_template_twig($var,$entity = false)
-    {   $content = $var['content'];
+    {   
+        if(!isset($var['content'])){
+            return false;
+        }
+        $content = $var['content'];
         $services = \Drupal::service('templating.manager');
         if(!$entity){
           return false ;

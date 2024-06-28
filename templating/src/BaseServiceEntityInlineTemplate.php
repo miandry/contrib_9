@@ -138,15 +138,17 @@ class BaseServiceEntityInlineTemplate
 
     public function is_allowed()
     {
-        //$current_theme = \Drupal::theme()->getActiveTheme();
-        //$theme = $current_theme->getName();
-        $config = \Drupal::config('system.theme');    
-        $theme = $config->get('default');
+        $current_theme = \Drupal::theme()->getActiveTheme();
+        $theme = $current_theme->getName();
         $config_settings = \Drupal::config("template_inline.settings");
         $disable = $config_settings->get('disable');
         $themes = $config_settings->get('theme');
         if ($disable) {
             return false;
+        }
+        if($themes == null ){
+            $config = \Drupal::config('system.theme');    
+            $theme = $config->get('default');
         }
         if($themes && !in_array($theme ,$themes)){
            return false;
