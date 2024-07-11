@@ -138,8 +138,10 @@ class BaseServiceEntityInlineTemplate
 
     public function is_allowed()
     {
-        $current_theme = \Drupal::theme()->getActiveTheme();
-        $theme = $current_theme->getName();
+        //$current_theme = \Drupal::theme()->getActiveTheme();
+        //$theme = $current_theme->getName();
+        $config = \Drupal::config('system.theme');    
+        $theme = $config->get('default');
         $config_settings = \Drupal::config("template_inline.settings");
         $disable = $config_settings->get('disable');
         $themes = $config_settings->get('theme');
@@ -268,6 +270,13 @@ class BaseServiceEntityInlineTemplate
         } else {
             return false ;
         }
+    }
+    public function getTemplatingById($id){
+        
+        $array = ['type' => 'templating','status' => true ,'nid' => $id];
+        $nodes = \Drupal::entityTypeManager()->getStorage('node')
+        ->loadByProperties($array);
+        return  end($nodes);
     }
     public function getTemplatingByTitle($hook_name){
         
