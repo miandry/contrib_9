@@ -66,10 +66,27 @@ class DefaultTwigExtension extends AbstractExtension
             new TwigFunction('render_template_user', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_user']),
             new TwigFunction('render_css', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_css_twig']),
             new TwigFunction('render_template_form', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_form']),
+            new TwigFunction('include_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'include_template_twig']),
    
         ];
     }
-
+    public static function include_template_twig($id,$var){
+        $service = \Drupal::service('templating.manager');
+        if(is_numeric($id)){
+            $template= $service->getTemplatingById($id);
+        }else{
+            $template= $service->getTemplatingByTitle($id);
+        }
+     
+        $output = $template->field_templating_html->value;
+        return [
+            '#type' => 'inline_template',
+            '#template' => $output,
+            '#context' => [
+              'var' => $var,
+            ],
+          ];
+    }
     
     public static function render_css_twig($css,$block_name)
   {
