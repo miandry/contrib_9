@@ -70,22 +70,33 @@ class DefaultTwigExtension extends AbstractExtension
    
         ];
     }
-    public static function include_template_twig($id,$var){
+    public static function include_template_twig($id,$var = []){
         $service = \Drupal::service('templating.manager');
         if(is_numeric($id)){
             $template= $service->getTemplatingById($id);
         }else{
             $template= $service->getTemplatingByTitle($id);
         }
+        if(is_object($template)){
+            $output = $template->field_templating_html->value;
+            return [
+                '#type' => 'inline_template',
+                '#template' => $output,
+                '#context' => [
+                  'var' => $var,
+                ],
+              ];
+        }else{
+            $output = "<b>Template custom not find</b>";
+            return [
+                '#type' => 'inline_template',
+                '#template' => $output,
+                '#context' => [
+                  'var' => $var,
+                ],
+              ];
+        }
      
-        $output = $template->field_templating_html->value;
-        return [
-            '#type' => 'inline_template',
-            '#template' => $output,
-            '#context' => [
-              'var' => $var,
-            ],
-          ];
     }
     
     public static function render_css_twig($css,$block_name)
