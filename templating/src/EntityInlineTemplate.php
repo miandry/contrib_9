@@ -245,11 +245,12 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   }
   public function topBlockTemplate($name){
     $name_css = str_replace('.twig','.css',$name);
+    $name_render = str_replace('.','_',$name);
     $txt = '{% extends get_module_path("templating") ~ "/templates/misc/block.html.twig" %}'.PHP_EOL ;
     $txt = $txt.'{% block templating_content %}'.PHP_EOL ;
     $txt = $txt.'{% set path_css = directory ~ "/templates/templating/css/'.$name_css.'" %}'.PHP_EOL;
     $txt = $txt.'{% set css = include(path_css) %}'.PHP_EOL;
-    $txt = $txt.'{{render_css(css,"'.$name.'")}}'.PHP_EOL;
+    $txt = $txt.'{{render_css(css,"'.$name_render.'")}}'.PHP_EOL;
     return  $txt ;
   }
   public function footerBlockTemplate($txt) {
