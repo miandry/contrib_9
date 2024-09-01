@@ -91,8 +91,7 @@ function templating_theme_suggestions_block_alter(&$suggestions, $variables) {
         $id = $content['#block_content']->id();
         $suggestions[] = 'block__'.$content['#block_content']->bundle()."__".$view_mode;
         $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$view_mode;
-        $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;
-       
+        $suggestions[] = 'block__'.$theme.'_'.$content['#block_content']->bundle()."_".$id."_".$view_mode;    
     }
 
     if (!isset($content['#block_content'])){
@@ -229,15 +228,16 @@ function _templating_node_diff_form_submit($form,FormStateInterface &$form_state
 function _templating_node_write_form_submit ($form,FormStateInterface &$form_state) {
   $service = \Drupal::service('templating.manager');
   $template = $form_state->getFormObject()->getEntity();
-  $batch = [
-    'title' => t('Export Template From File...'),
-    'operations' => [],
-    'init_message' => t('Starting ..'),
-    'progress_message' => t('Processd @current out of @total.'),
-    'error_message' => t('An error occurred during processing.'),
-    'finished' => 'Drupal\templating\EntityInlineTemplate::importFinishedCallback',
-  ];
-  $batch['operations'][] = [$service->exportTemplating($template), []];
+  $service->exportTemplating($template);
+  // $batch = [
+  //   'title' => t('Export Template From File...'),
+  //   'operations' => [],
+  //   'init_message' => t('Starting ..'),
+  //   'progress_message' => t('Processd @current out of @total.'),
+  //   'error_message' => t('An error occurred during processing.'),
+  //   'finished' => 'Drupal\templating\EntityInlineTemplate::importFinishedCallback',
+  // ];
+ // $batch['operations'][] = [$service->exportTemplating($template), []];
   //batch_set($batch);
 }
 
