@@ -43,6 +43,7 @@ class ConfigTemplateCreate extends FormBase
                     4 =>'User',
                     5 =>'Form',
                     6 => 'Field',
+                    7 => 'Page',
                 ],
                 '#required' => true,
             ];
@@ -74,6 +75,9 @@ class ConfigTemplateCreate extends FormBase
         }
         if ($this->step == 5) {
             $form = TemplatingForm::formForm($form);
+        }
+        if ($this->step == 7) {
+            $form = TemplatingForm::pageForm($form);
         }
         $form['actions'] = ['#type' => 'actions'];
         $form['actions']['submit'] = [
@@ -187,7 +191,7 @@ class ConfigTemplateCreate extends FormBase
                 }
             }
             // template block_content
-            if (isset($values['route_name'])) {
+            if (isset($values['page_name'])) {
                 $configs = TemplatingForm::pageFormSubmit($values);
                 if (isset($configs['name'])) {
                     $config_name = $configs['name'];

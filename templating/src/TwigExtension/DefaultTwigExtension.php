@@ -5,6 +5,7 @@ namespace Drupal\templating\TwigExtension;
 
 use Twig\TwigFunction;
 use Twig\Extension\AbstractExtension;
+use Drupal\Core\Url;
 /**
  * Class DefaultTwigExtension.
  */
@@ -58,7 +59,8 @@ class DefaultTwigExtension extends AbstractExtension
             new TwigFunction('render_node_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_node_inline_template_twig']),
             new TwigFunction('render_template_node', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_node_twig']),
             new TwigFunction('render_template_block', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_template_block_twig']),
-
+            new TwigFunction('render_page_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_page_inline_template_twig']),
+   
             new TwigFunction('render_inline_template', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'render_inline_template_twig']),
             new TwigFunction('DRUPAL_ROOT', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'DRUPAL_ROOT_TWIG']),
             new TwigFunction('path_templating', ['Drupal\templating\TwigExtension\DefaultTwigExtension', 'path_templating']),
@@ -264,6 +266,51 @@ class DefaultTwigExtension extends AbstractExtension
     public static function file_exists_twig($file_path)
     {
         return file_exists(DRUPAL_ROOT . '/' . $file_path);
+    }
+    public static function render_page_inline_template_twig($page)
+    { 
+        $alias_manager = \Drupal::service('path_alias.manager');
+        $url = \Drupal\Core\Url::fromRoute('<current>');
+        $alias = \Drupal::service('path_alias.manager')->getAliasByPath($url->toString());
+        $entity = false ;
+        try {
+            $path = $alias_manager->getPathByAlias($alias);
+            $route = \Drupal\Core\Url::fromUserInput($path);
+            if ($route && $route->isRouted()) {
+                $params = $route->getRouteParameters();
+                if (!empty($params['node'])) {
+                    $entity = $params['node'];
+                    $entity = \Drupal::entityTypeManager()->getStorage('node')
+                    ->load($entity);
+                }
+            }
+        } catch (\Exception $e) {
+            $entity =  false;
+        }
+        if (is_object($entity)) {
+            $services = \Drupal::service('templating.manager');
+            $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+            $theme = $activeThemeName->getName();
+            $alias = str_replace('/', '-', $alias);
+            $hook_name  = 'page--node-'.$theme.'-'.$alias.".html.twig";
+            $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
+            $nodes = \Drupal::entityTypeManager()->getStorage('node')
+            ->loadByProperties($array);
+            if(!empty($nodes)){
+                $node = end($nodes);           
+                $output = $node->field_templating_html->value ;
+                return [
+                    '#type' => 'inline_template',
+                    '#template' => $output,
+                    '#context' => [
+                        'entity' => $node,
+                        'page' => $page
+                    ],
+                ];
+            }
+
+        }
+        return false ;
     }
 
     public static function render_inline_template_twig($var,$entity = false)

@@ -1,7 +1,7 @@
 <?php
 
 namespace Drupal\templating\Form;
-
+use Drupal\node\Entity\Node;
 /**
  * Class TemplatingForm.
  */
@@ -222,12 +222,19 @@ class TemplatingForm
     }
     public static function pageForm($form)
     {
-        $route_list = [];
-        $routes = \Drupal::service('router.route_provider')->getAllRoutes();
-        foreach ($routes as $key => $route) {
-            $route_list[$key] = $route->getPath();
-        }
+        $query = \Drupal::entityQuery('node')
+        ->condition('type', 'page');
+        // Execute the query and get node IDs.
+        $nids = $query->execute();
+        // Load nodes from the retrieved node IDs.
+        $nodes = Node::loadMultiple($nids);
 
+        $page_list = [];
+        foreach ($nodes as $key => $node) {
+          $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
+          $alias = str_replace('/', '_', $alias);
+          $page_list[$alias] = $node->title->value;
+        }
         $services = \Drupal::service('templating.manager');
         $themes = $services->getThemeList();
         $region_list = $services->getRegionList();
@@ -243,16 +250,10 @@ class TemplatingForm
             '#required' => true,
             '#default_value' => $defaultThemeName,
         ];
-        $form['route_name'] = [
+        $form['page_name'] = [
             '#type' => 'select',
             '#title' => t('Page path'),
-            '#options' => $route_list,
-            '#required' => true,
-        ];
-        $form['region'] = [
-            '#type' => 'select',
-            '#title' => t('Region name'),
-            '#options' => $region_list,
+            '#options' => $page_list,
             '#required' => true,
         ];
         return $form;
@@ -260,13 +261,16 @@ class TemplatingForm
     public static function pageFormSubmit($values)
     {
         $config_name = null;
-        if (isset($values['route_name']) &&
+        if (isset($values['page_name']) &&
             isset($values['theme'])) {
-            $config_name = "page--" . $values['theme'] . "-" . trim($values['route_name']) . "-" . trim($values['region']) . ".html.twig";
+            $theme = $values['theme'] ;
+            $alias = $values['page_name'];
+            $config_name  =   'page__node_'.$theme.'_'.$alias.".html.twig";
         }
         return [
             "name" => $config_name,
-            "type" => "page",
+            "bundle" => "page",
+            "entity_type" => "node"
         ];
     }
     public static function fieldForm($form)

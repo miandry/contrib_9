@@ -140,8 +140,15 @@ class BaseServiceEntityInlineTemplate
     {
         //$current_theme = \Drupal::theme()->getActiveTheme();
         //$theme = $current_theme->getName();
-        $config = \Drupal::config('system.theme');    
-        $theme = $config->get('default');
+
+     // pourquoi ??   
+     //   $config = \Drupal::config('system.theme');    
+     //   $theme = $config->get('default');
+        
+        $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+        $theme = $activeThemeName->getName();
+
+
         $config_settings = \Drupal::config("template_inline.settings");
         $disable = $config_settings->get('disable');
         $themes = $config_settings->get('theme');
@@ -279,7 +286,6 @@ class BaseServiceEntityInlineTemplate
         return  end($nodes);
     }
     public function getTemplatingByTitle($hook_name){
-        
         $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
         $nodes = \Drupal::entityTypeManager()->getStorage('node')
         ->loadByProperties($array);

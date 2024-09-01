@@ -133,8 +133,10 @@ function templating_theme_registry_alter(&$theme_registry) {
     //  $theme_registry['node']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
     //  $theme_registry['views_view']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
     //  $theme_registry['comment']['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
-      foreach (   $theme_registry as $key => $item){
+
+    foreach (   $theme_registry as $key => $item){
        // kint($item['template']);
+  
         $file = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc/'.$item['template'].'.html.twig' ;
         if(file_exists($file)){
           $theme_registry[$key]['path'] = \Drupal::service('extension.list.module')->getPath('templating') .'/templates/misc' ;
@@ -192,26 +194,30 @@ function templating_form_alter(&$form, FormStateInterface $form_state, $form_id)
        $template = $form_state->getFormObject()->getEntity();
      $service = \Drupal::service('templating.manager');
      $file = $service->getFilepathTemplating( $template);
-     if (\Drupal::currentUser()->hasPermission('allowed write template file')) {
-       if (!file_exists($file)) {
-         $form['actions']['alt_button'] = array(
-           '#type' => 'submit',
-           '#value' => t('Export'),
-           '#submit' => array('_templating_node_write_form_submit'),
-         );
-       }else{
-         $form['actions']['alt_button'] = array(
-           '#type' => 'submit',
-           '#value' => t('Update file'),
-           '#submit' => array('_templating_node_write_form_submit'),
-         );
-           $form['actions']['diff_button'] = array(
-             '#type' => 'submit',
-             '#value' => t('Check diff'),
-             '#submit' => array('_templating_node_diff_form_submit'),
-           );
 
-       }
+     $entity_name = $template->field_templating_entity_type->value ;
+     if(   $entity_name =='block_content' ||  $entity_name =='block' ||  $entity_name =='node' ||    $entity_name == 'user' || $entity_name == 'taxonomy_term'){
+      if (\Drupal::currentUser()->hasPermission('allowed write template file')) {
+        if (!file_exists($file)) {
+          $form['actions']['alt_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Export'),
+            '#submit' => array('_templating_node_write_form_submit'),
+          );
+        }else{
+          $form['actions']['alt_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Update file'),
+            '#submit' => array('_templating_node_write_form_submit'),
+          );
+            $form['actions']['diff_button'] = array(
+              '#type' => 'submit',
+              '#value' => t('Check diff'),
+              '#submit' => array('_templating_node_diff_form_submit'),
+            );
+
+        }
+      }
      }
 
 
@@ -389,5 +395,23 @@ function templating_preprocess_node(&$variables){
     $variables['#cache']['max-age'] = 0;
   }
 }
-
+function templating_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+  if ($node = \Drupal::routeMatch()->getParameter('node')) {
+    // Check if the current page is a node page.
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      // Get the content type of the node.
+      $node_type = $node->getType();
+      if($node_type == 'page'){  
+        $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+        $theme = $activeThemeName->getName();
+        // Add a suggestion based on the content type.
+        $suggestions[] = 'page__node_' . $node_type;
+        $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
+        if( $alias){
+          $suggestions[] = 'page__node_'.$theme.'_'.str_replace('/', '_', $alias);
+        }
+      }
+    }
+  }
+}
 

@@ -243,17 +243,32 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 
     return new RedirectResponse(Url::fromRoute('view.templating.page_1')->toString());
   }
-  public function topBlockTemplate($name){
+  public function getFileNameEntity($template){
+    $bundle = $template->field_templating_bundle->value ;
+    $entity_name = $template->field_templating_entity_type->value ;
+    $bundle =   str_replace('_','-',$bundle);  
+    $name_file =  $entity_name ;
+    if($entity_name == 'block' ||   $entity_name == 'block_content' ){
+      $name_file =  'block' ;
+    }
+    if($bundle == 'page'){
+      $name_file =  'page' ;
+    }
+    return  $name_file ;
+  }
+  public function topTemplate($template){
+    $name = $template->title->value ;
+    $name_file = $this->getFileNameEntity($template);
     $name_css = str_replace('.twig','.css',$name);
     $name_render = str_replace('.','_',$name);
-    $txt = '{% extends get_module_path("templating") ~ "/templates/misc/block.html.twig" %}'.PHP_EOL ;
+    $txt = '{% extends get_module_path("templating") ~ "/templates/misc/'.$name_file.'.html.twig" %}'.PHP_EOL ;
     $txt = $txt.'{% block templating_content %}'.PHP_EOL ;
     $txt = $txt.'{% set path_css = directory ~ "/templates/templating/css/'.$name_css.'" %}'.PHP_EOL;
     $txt = $txt.'{% set css = include(path_css) %}'.PHP_EOL;
     $txt = $txt.'{{render_css(css,"'.$name_render.'")}}'.PHP_EOL;
     return  $txt ;
   }
-  public function footerBlockTemplate($txt) {
+  public function footerTemplate($txt) {
     $txt = $txt.PHP_EOL.'{% endblock %}';
     return  $txt ;
   }
@@ -262,11 +277,11 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     if (strpos($name, 'block-content') === 0) {
       $name = str_replace('block-content','block',$name);
     }
-    $txt = $this->topBlockTemplate($name);
+    $txt = $this->topTemplate($template);
     $file_path = $this->getFilepathTemplating($template);
     $myfile = fopen($file_path, "wr") or \Drupal::logger('templating')->error($file_path . "can not write");
     $txt = $txt.$template->field_templating_html->value;
-    $txt = $this->footerBlockTemplate($txt);
+    $txt = $this->footerTemplate($txt);
     fwrite($myfile, $txt);
     fclose($myfile);
     $message = 'Template html in '.$file_path.' export successfully';
@@ -334,8 +349,8 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $file_name = $template->label();
     if (strpos($file_name, 'block-content') === 0) {
       $file_name = str_replace('block-content','block',$file_name);
-      $file_name = str_replace('.twig','.css',$file_name);
     }
+    $file_name = str_replace('.twig','.css',$file_name);
     $themeHandler = \Drupal::service('theme_handler');
     $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
     return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/css/' . $file_name);
