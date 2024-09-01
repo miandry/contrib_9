@@ -248,7 +248,8 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $entity_name = $template->field_templating_entity_type->value ;
     $bundle =   str_replace('_','-',$bundle);  
     $name_file =  $entity_name ;
-    if($entity_name == 'block' ||   $entity_name == 'block_content' ){
+    if($bundle ==  'block' || $bundle == 'block_content' 
+    || $entity_name == 'block' ||   $entity_name == 'block_content' ){
       $name_file =  'block' ;
     }
     if($bundle == 'page'){
@@ -258,6 +259,9 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   }
   public function topTemplate($template){
     $name = $template->title->value ;
+    if (strpos($name, 'block-content') === 0) {
+      $name = str_replace('block-content','block',$name);
+    }
     $name_file = $this->getFileNameEntity($template);
     $name_css = str_replace('.twig','.css',$name);
     $name_render = str_replace('.','_',$name);
@@ -273,28 +277,29 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     return  $txt ;
   }
   public function exportHtmlTemplating($template){
-    $name = $template->label();
-    if (strpos($name, 'block-content') === 0) {
-      $name = str_replace('block-content','block',$name);
-    }
+
     $txt = $this->topTemplate($template);
     $file_path = $this->getFilepathTemplating($template);
-    $myfile = fopen($file_path, "wr") or \Drupal::logger('templating')->error($file_path . "can not write");
     $txt = $txt.$template->field_templating_html->value;
+    
+    $myfile = fopen($file_path, "wr") or \Drupal::logger('templating')->error($file_path . "can not write");
     $txt = $this->footerTemplate($txt);
     fwrite($myfile, $txt);
     fclose($myfile);
-    $message = 'Template html in '.$file_path.' export successfully';
-    \Drupal::messenger()->addMessage($message);
+      $message = 'Template html in '.$file_path.' export successfully';
+      \Drupal::messenger()->addMessage($message);
+
   }
   public function exportCssTemplating($template){
     $file_path = $this->getFilepathCSSTemplating($template);
+   
     $myfile = fopen($file_path, "wr") or \Drupal::logger('templating')->error($file_path . "can not write");
     $txt = $template->field_templating_css->value;
     fwrite($myfile, $txt);
     fclose($myfile);
-    $message = 'Template css in '.$file_path.' export successfully';
-    \Drupal::messenger()->addMessage($message);
+     $message = 'Template css in '.$file_path.' export successfully';
+      \Drupal::messenger()->addMessage($message);
+
   }
   public function exportTemplating($template)
   {  //kint($template);die();
@@ -341,8 +346,16 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
       $file_name = str_replace('block-content','block',$file_name);
     }
     $themeHandler = \Drupal::service('theme_handler');
-    $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
-    return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/' . $file_name);
+    $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath(); 
+    $directory = (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/' );
+    if (!is_dir($directory)) {
+      if (!mkdir($directory, 0755, true)) {
+          $message = "Failed to create directory ".$directory;
+          \Drupal::logger('templating')->error( $message);
+          return false ;
+      }
+    }
+    return $directory . $file_name;
   }
   public function getFilepathCSSTemplating($template)
   {
@@ -353,7 +366,15 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $file_name = str_replace('.twig','.css',$file_name);
     $themeHandler = \Drupal::service('theme_handler');
     $themePath = $themeHandler->getTheme($template->field_templating_theme->value)->getPath();
-    return (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/css/' . $file_name);
+    $directory = (DRUPAL_ROOT . '/' . $themePath . '/templates/templating/css/' );
+    if (!is_dir($directory)) {
+      if (!mkdir($directory, 0755, true)) {
+          $message = "Failed to create directory ".$directory;
+          \Drupal::logger('templating')->error( $message);
+          return false ;
+      }
+    }
+    return  $directory.$file_name;
   }
   public function getRenderTemplateForm($content){
     $output = false;
