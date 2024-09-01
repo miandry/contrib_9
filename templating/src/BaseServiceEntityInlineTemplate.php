@@ -148,6 +148,10 @@ class BaseServiceEntityInlineTemplate
         if ($disable) {
             return false;
         }
+        if($themes == null ){
+            $config = \Drupal::config('system.theme');    
+            $theme = $config->get('default');
+        }
         if($themes && !in_array($theme ,$themes)){
            return false;
         }
@@ -266,6 +270,13 @@ class BaseServiceEntityInlineTemplate
         } else {
             return false ;
         }
+    }
+    public function getTemplatingById($id){
+        
+        $array = ['type' => 'templating','status' => true ,'nid' => $id];
+        $nodes = \Drupal::entityTypeManager()->getStorage('node')
+        ->loadByProperties($array);
+        return  end($nodes);
     }
     public function getTemplatingByTitle($hook_name){
         
