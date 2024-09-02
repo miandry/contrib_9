@@ -84,6 +84,7 @@ class DefaultTwigExtension extends AbstractExtension
             return [
                 '#type' => 'inline_template',
                 '#template' => $output,
+                'status' => true ,
                 '#context' => [
                   'var' => $var,
                 ],
@@ -93,6 +94,7 @@ class DefaultTwigExtension extends AbstractExtension
             return [
                 '#type' => 'inline_template',
                 '#template' => $output,
+                'status' => false,
                 '#context' => [
                   'var' => $var,
                 ],
