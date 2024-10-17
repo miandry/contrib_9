@@ -1,24 +1,24 @@
 <?php
 
-namespace Drupal\diff\Tests;
+namespace Drupal\Tests\diff\FunctionalJavascript;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
+use Drupal\user\Entity\User;
 
 /**
  * Base class for Diff web tests.
  */
-abstract class DiffTestBase extends WebTestBase {
+abstract class DiffTestBase extends WebDriverTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = [
-    'node',
-    'diff',
-    'block',
-  ];
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = ['node', 'diff', 'block'];
 
   /**
    * Permissions for the admin user.
@@ -44,7 +44,7 @@ abstract class DiffTestBase extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create the Article content type.
@@ -55,8 +55,9 @@ abstract class DiffTestBase extends WebTestBase {
     $this->drupalPlaceBlock('local_actions_block');
 
     // Make sure HTML Diff is disabled.
-    $config = \Drupal::configFactory()->getEditable('diff.settings');
-    $config->set('general_settings.layout_plugins.visual_inline.enabled', FALSE)->save();
+    $this->config('diff.settings')
+      ->set('general_settings.layout_plugins.visual_inline.enabled', FALSE)
+      ->save();
   }
 
   /**
@@ -71,7 +72,7 @@ abstract class DiffTestBase extends WebTestBase {
    * @return \Drupal\user\Entity\User|false
    *   Newly created and logged in user object.
    */
-  protected function loginAsAdmin(array $additional_permissions = [], $reset_permissions = FALSE) {
+  protected function loginAsAdmin(array $additional_permissions = [], bool $reset_permissions = FALSE): User|bool {
     $permissions = $this->adminPermissions;
 
     if ($reset_permissions) {

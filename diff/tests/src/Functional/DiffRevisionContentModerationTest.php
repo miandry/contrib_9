@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\diff\Tests;
+namespace Drupal\Tests\diff\Functional;
+
+use Drupal\Tests\content_moderation\Traits\ContentModerationTestTrait;
 use Drupal\workflows\Entity\Workflow;
 
 /**
@@ -9,19 +11,21 @@ use Drupal\workflows\Entity\Workflow;
  * @group diff
  */
 class DiffRevisionContentModerationTest extends DiffRevisionTest {
+  use ContentModerationTestTrait;
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['content_moderation'];
+  protected static $modules = ['content_moderation'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Enable moderation on articles.
+    $this->createEditorialWorkflow();
     /** @var \Drupal\workflows\WorkflowInterface $workflow */
     $workflow = Workflow::load('editorial');
     /** @var \Drupal\content_moderation\Plugin\WorkflowType\ContentModeration $plugin */
@@ -46,27 +50,17 @@ class DiffRevisionContentModerationTest extends DiffRevisionTest {
    *
    * Override form submission to work with content moderation.
    */
-  protected function drupalPostNodeForm($path, array $edit, $submit) {
+  protected function drupalPostNodeForm($path, array $edit, $submit): void {
     // New revisions are automatically enabled, so remove the manual value.
     unset($edit['revision']);
     parent::drupalPostNodeForm($path, $edit, $submit);
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function testAll() {
-    // Ensure revision tab still works as expected.
-    parent::testAll();
-
-    // Specifically test for content moderation functionality.
-    $this->doTestContentModeration();
-  }
-
-  /**
    * Test content moderation integration.
    */
-  protected function doTestContentModeration() {
+  public function testContentModeration(): void {
+    $this->loginAsAdmin();
     $title = $this->randomString();
     $node = $this->createNode([
       'type' => 'article',
@@ -95,10 +89,10 @@ class DiffRevisionContentModerationTest extends DiffRevisionTest {
 
     // Verify proper moderation states are displayed.
     $diff_rows = $this->xpath('//tbody/tr/td[1]/p');
-    $this->assertEqual('Fourth revision (Draft)', (string) $diff_rows[0]);
-    $this->assertEqual('Third revision (Published)', (string) $diff_rows[1]);
-    $this->assertEqual('Second revision (Draft)', (string) $diff_rows[2]);
-    $this->assertEqual('First revision (Draft)', (string) $diff_rows[3]);
+    $this->assertEquals('Fourth revision (Draft)', $diff_rows[0]->getText());
+    $this->assertEquals('Third revision (Published)', $diff_rows[1]->getText());
+    $this->assertEquals('Second revision (Draft)', $diff_rows[2]->getText());
+    $this->assertEquals('First revision (Draft)', $diff_rows[3]->getText());
   }
 
 }

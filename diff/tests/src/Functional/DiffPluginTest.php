@@ -1,11 +1,10 @@
 <?php
 
-namespace Drupal\diff\Tests;
+namespace Drupal\Tests\diff\Functional;
 
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff module plugins.
@@ -18,11 +17,9 @@ class DiffPluginTest extends DiffPluginTestBase {
   use CoreVersionUiTestTrait;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'comment',
   ];
 
@@ -38,7 +35,7 @@ class DiffPluginTest extends DiffPluginTestBase {
    * @param string $widget_type
    *   The widget type.
    */
-  protected function addArticleTextField($field_name, $label, $field_type, $widget_type) {
+  protected function addArticleTextField($field_name, $label, $field_type, $widget_type): void {
     // Create a field.
     $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
@@ -60,19 +57,9 @@ class DiffPluginTest extends DiffPluginTestBase {
   }
 
   /**
-   * Runs all independent tests.
-   */
-  public function testAll() {
-    $this->doTestFieldWithNoPlugin();
-    $this->doTestFieldNoAccess();
-    $this->doTestApplicablePlugin();
-    $this->doTestTrimmingField();
-  }
-
-  /**
    * Tests the changed field without plugins.
    */
-  public function doTestFieldWithNoPlugin() {
+  public function testFieldWithNoPlugin(): void {
     // Create an article.
     $node = $this->drupalCreateNode([
       'type' => 'article',
@@ -84,22 +71,22 @@ class DiffPluginTest extends DiffPluginTestBase {
       'revision' => TRUE,
       'body[0][value]' => 'change',
     ];
-    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save');
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
+    $this->submitForm([], 'Compare selected revisions');
 
     // "changed" field is not displayed since there is no plugin for it. This
     // should not break the revisions comparison display.
-    $this->assertResponse(200);
-    $this->assertLink(t('Split fields'));
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->linkExists('Split fields');
   }
 
   /**
    * Tests the access check for a field while comparing revisions.
    */
-  public function doTestFieldNoAccess() {
+  public function testFieldNoAccess(): void {
     // Add a text and a text field to article.
     $this->addArticleTextField('field_diff_deny_access', 'field_diff_deny_access', 'string', 'string_textfield');
 
@@ -119,11 +106,11 @@ class DiffPluginTest extends DiffPluginTestBase {
 
     // Check the "Text Field No Access" field is not displayed.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
-    $this->assertResponse(200);
-    $this->assertNoText('field_diff_deny_access');
+    $this->submitForm([], 'Compare selected revisions');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextNotContains('field_diff_deny_access');
     $rows = $this->xpath('//tbody/tr');
-    $this->assertEqual(count($rows), 2);
+    $this->assertCount(2, $rows);
   }
 
   /**
@@ -132,7 +119,7 @@ class DiffPluginTest extends DiffPluginTestBase {
    * @covers \Drupal\diff_test\Plugin\diff\Field\TestHeavierTextPlugin
    * @covers \Drupal\diff_test\Plugin\diff\Field\TestLighterTextPlugin
    */
-  public function doTestApplicablePlugin() {
+  public function testApplicablePlugin(): void {
     // Add three text fields to the article.
     $this->addArticleTextField('test_field', 'Test Applicable', 'text', 'text_textfield');
     $this->addArticleTextField('test_field_lighter', 'Test Lighter Applicable', 'text', 'text_textfield');
@@ -154,34 +141,34 @@ class DiffPluginTest extends DiffPluginTestBase {
       'test_field_non_applicable[0][value]' => 'nicer_not_applicable',
       'revision' => TRUE,
     ];
-    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save');
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
+    $this->submitForm([], 'Compare selected revisions');
 
     // Check diff for an applicable field of testTextPlugin.
-    $this->assertText('Test Applicable');
-    $this->assertText('first_nice_heavier_test_plugin');
-    $this->assertText('first_nicer_heavier_test_plugin');
+    $this->assertSession()->pageTextContains('Test Applicable');
+    $this->assertSession()->pageTextContains('first_nice_heavier_test_plugin');
+    $this->assertSession()->pageTextContains('first_nicer_heavier_test_plugin');
 
     // Check diff for an applicable field of testTextPlugin and
     // testLighterTextPlugin. The plugin selected for this field should be the
     // lightest one.
-    $this->assertText('Test Lighter Applicable');
-    $this->assertText('second_nice_lighter_test_plugin');
-    $this->assertText('second_nicer_lighter_test_plugin');
+    $this->assertSession()->pageTextContains('Test Lighter Applicable');
+    $this->assertSession()->pageTextContains('second_nice_lighter_test_plugin');
+    $this->assertSession()->pageTextContains('second_nicer_lighter_test_plugin');
 
     // Check diff for a non applicable field of both test plugins.
-    $this->assertText('Test Not Applicable');
-    $this->assertText('not_applicable');
-    $this->assertText('nicer_not_applicable');
+    $this->assertSession()->pageTextContains('Test Not Applicable');
+    $this->assertSession()->pageTextContains('not_applicable');
+    $this->assertSession()->pageTextContains('nicer_not_applicable');
   }
 
   /**
    * Tests field content trimming.
    */
-  public function doTestTrimmingField() {
+  public function testTrimmingField(): void {
     // Create a node.
     $node = $this->drupalCreateNode([
       'type' => 'article',
@@ -198,16 +185,16 @@ class DiffPluginTest extends DiffPluginTestBase {
       'body[0][value]' => '<p>body</p>
 ',
     ];
-    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save');
 
     // Assert the revision comparison.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
-    $this->assertNoText('No visible changes.');
+    $this->submitForm([], 'Compare selected revisions');
+    $this->assertSession()->pageTextNotContains('No visible changes.');
     $rows = $this->xpath('//tbody/tr');
-    $diff_row = $rows[1]->td;
-    $this->assertEqual(count($rows), 3);
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[2]->asXML())), '<p>body</p>');
+    $diff_row = $rows[1]->findAll('xpath', '/td');
+    $this->assertCount(3, $rows);
+    $this->assertEquals(htmlspecialchars_decode(strip_tags($diff_row[2]->getHtml())), '<p>body</p>');
 
     // Create a new revision and update the body.
     $edit = [
@@ -217,16 +204,19 @@ class DiffPluginTest extends DiffPluginTestBase {
 <p>body_new</p>
 ',
     ];
-    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save');
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
-    $this->assertNoText('No visible changes.');
-    // Assert that empty rows also show a line number.
+    $this->submitForm([], 'Compare selected revisions');
+    $this->assertSession()->pageTextNotContains('No visible changes.');
     $rows = $this->xpath('//tbody/tr');
-    $this->assertEqual(count($rows), 5);
-    $diff_row = $rows[4]->td;
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), '4');
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[0]->asXML())), '2');
+    // The diff engine in Drupal core 10.1 changed so we have different amounts
+    // of rows before and after that engine change. The important thing is that
+    // multiple rows show and all of them, including empty lines, display line
+    // numbers.
+    $this->assertGreaterThan(3, count($rows));
+    $this->assertEquals(htmlspecialchars_decode(strip_tags($rows[1]->findAll('xpath', '/td')[3]->getHtml())), '1');
+    $this->assertEquals(htmlspecialchars_decode(strip_tags($rows[2]->findAll('xpath', '/td')[3]->getHtml())), '2');
+    $this->assertEquals(htmlspecialchars_decode(strip_tags($rows[3]->findAll('xpath', '/td')[3]->getHtml())), '3');
   }
 
 }

@@ -2,15 +2,15 @@
 
 namespace Drupal\diff;
 
+use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
 
 /**
  * Builds a diff from field item list.
  */
-interface FieldDiffBuilderInterface extends PluginFormInterface, ConfigurablePluginInterface {
+interface FieldDiffBuilderInterface extends PluginFormInterface, ConfigurableInterface {
 
   /**
    * Builds an array of strings.
@@ -22,15 +22,15 @@ interface FieldDiffBuilderInterface extends PluginFormInterface, ConfigurablePlu
    *
    * Example of FieldItemListInterface built into an array of strings:
    * @code
-   * array(
+   * [
    *   0 => "This is an example string",
    *   1 => "Field values or properties",
-   * )
+   * ]
    * @endcode
    *
    * @see \Drupal\diff\Plugin\diff\Field\TextFieldBuilder
    *
-   * @param FieldItemListInterface $field_items
+   * @param \Drupal\Core\Field\FieldItemListInterface $field_items
    *   Represents an entity field.
    *
    * @return mixed

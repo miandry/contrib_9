@@ -1,18 +1,16 @@
 description: Supports diff's automated tests.
-# core: 8.x
 dependencies:
-  - diff
-  - filter
-  - editor
-  - entity_test
-  - node
+  - diff:diff
+  - drupal:filter
+  - drupal:editor
+  - drupal:entity_test
+  - drupal:node
 hidden: true
 name: Diff tests
-package: diff
+package: Testing
 type: module
 
-# Information added by Drupal.org packaging script on 2018-06-28
-version: '8.x-1.0-rc2'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2024-04-12
+version: '8.x-1.3'
 project: 'diff'
-datestamp: 1530178427
+datestamp: 1712883860
