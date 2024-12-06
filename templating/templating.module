@@ -59,6 +59,19 @@ function templating_theme_suggestions_node_alter(array &$suggestions, array $var
 
 }
 /**
+ * Implements hook_theme_suggestions_HOOK_alter() for unformatted views.
+ */
+function templating_theme_suggestions_views_view_alter(array &$suggestions, array $variables) {
+  // Get the view object from the variables.
+    $view = $variables['view'];
+    $display = $view->current_display ;
+    $view_name =  $view->id() ;
+    $suggestions[] = 'views-view-unformatted--'. $view_name.'--'. $display;
+    $suggestions[] = 'views-view-table--'. $view_name.'--'. $display;
+    $suggestions[] = 'views-view-grid--'. $view_name.'--'. $display;
+
+}
+/**
  * Implements hook_theme_suggestions_alter().
  */
 function templating_theme_suggestions_taxonomy_term_alter(array &$suggestions, array $variables, $hook) {
