@@ -220,6 +220,60 @@ class TemplatingForm
             "bundle" => $type,
         ];
     }
+   
+    public static function htmlForm($form)
+    {
+        $query = \Drupal::entityQuery('node')
+        ->condition('type', 'page');
+        // Execute the query and get node IDs.
+        $nids = $query->execute();
+        // Load nodes from the retrieved node IDs.
+        $nodes = Node::loadMultiple($nids);
+
+        $page_list = [];
+        foreach ($nodes as $key => $node) {
+          $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
+          $alias = str_replace('/', '_', $alias);
+          $page_list[$alias] = $node->title->value;
+        }
+        $services = \Drupal::service('templating.manager');
+        $themes = $services->getThemeList();
+        $region_list = $services->getRegionList();
+        $theme_options = [];
+        foreach ($themes as $theme) {
+            $theme_options[$theme] = $theme;
+        }
+        $defaultThemeName = \Drupal::config('system.theme')->get('default');
+        $form['theme'] = [
+            '#type' => 'select',
+            '#title' => t('Themes'),
+            '#options' => $theme_options,
+            '#required' => true,
+            '#default_value' => $defaultThemeName,
+        ];
+        $form['html_name'] = [
+            '#type' => 'select',
+            '#title' => t('HTML path'),
+            '#options' => $page_list,
+            '#required' => true,
+        ];
+        return $form;
+    }
+    public static function htmlFormSubmit($values)
+    {
+        $config_name = null;
+        if (isset($values['html_name']) &&
+            isset($values['theme'])) {
+            $theme = $values['theme'] ;
+            $alias = $values['html_name'];
+            $config_name  =   'html__node_'.$theme.'_'.$alias.".html.twig";
+        }
+        return [
+            "name" => $config_name,
+            "bundle" => "html_page",
+            "entity_type" => "node"
+        ];
+    }
     public static function pageForm($form)
     {
         $query = \Drupal::entityQuery('node')

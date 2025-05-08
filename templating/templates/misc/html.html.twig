@@ -1,5 +1,7 @@
+
+{% block templating_content %}
 {% if html_page %}
-  {{ html_page }}
+   {{ html_page }}
 {% else %}
 {#
 /**
@@ -72,3 +74,5 @@
   </body>
 </html>
 {% endif %}
+
+{% endblock %}

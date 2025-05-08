@@ -408,6 +408,30 @@ function templating_preprocess_node(&$variables){
     $variables['#cache']['max-age'] = 0;
   }
 }
+  /**
+ * Implements hook_theme_suggestions_HOOK_alter() for HTML.
+ */
+function templating_theme_suggestions_html_alter(array &$suggestions, array $variables) {
+
+  if ($node = \Drupal::routeMatch()->getParameter('node')) {
+    // Check if the current page is a node page.
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      // Get the content type of the node.
+      $node_type = $node->getType();
+      if($node_type == 'page'){  
+        $activeThemeName = \Drupal::service('theme.manager')->getActiveTheme();
+        $theme = $activeThemeName->getName();
+        $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $node->id());
+        if( $alias){
+          $alias = str_replace('/', '_', $alias);
+          $suggestions[] = 'html__node_' . $theme . '_' . $alias;
+        }
+      }
+    }
+  }
+
+}
+
 function templating_theme_suggestions_page_alter(array &$suggestions, array $variables) {
   if ($node = \Drupal::routeMatch()->getParameter('node')) {
     // Check if the current page is a node page.

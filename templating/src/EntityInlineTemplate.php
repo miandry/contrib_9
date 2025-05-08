@@ -74,7 +74,36 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
 
     return $output;
   }
-
+  function getTemplatingDatabaseHTMLStatic($entity, $mode_view = null)
+  {
+    $theme = $this->is_allowed();
+    if (!$theme) {
+      return false;
+    }
+    if($mode_view == null){
+      $mode_view = "full";
+    }
+    $entity_name = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
+    $id = $entity->id();
+    $output = false;
+    $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
+    $alias = str_replace('/', '_', $alias);
+    $hook_name = $this->formatName('html--node-' . $theme . '-' . $alias . '.html.twig');
+    $content = $this->getTemplatingByTitle($hook_name);
+    if (!is_object($content)) {
+      $theme_base = $this->baseTheme($theme);
+      $hook_name = $this->formatName('html--node-' . $theme_base . '-' . $alias . '.html.twig'); 
+      $content_base = $this->getTemplatingByTitle($hook_name_base);
+      if (is_object($content_base)) {
+        $content = $content_base;
+      }
+    }
+    if (is_object($content)) {
+      $output = $content->field_templating_html->value;
+    }
+    return $output;
+  }
   function getTemplatingDatabase($entity, $mode_view = null)
   {
     $theme = $this->is_allowed();
@@ -89,6 +118,7 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
     $id = $entity->id();
     $output = false;
     $hook_name = $this->formatName($entity_name . '--' . $theme . '-' . $bundle . "-" . $mode_view . ".html.twig");
+
     $content = $this->getTemplatingByTitle($hook_name);
     if (!is_object($content)) {
       $theme_base = $this->baseTheme($theme);
@@ -219,15 +249,14 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   }
 
   function htmlPage()
-  {
+  { 
     $node = \Drupal::request()->attributes->get('node');
-    $is_ready = $this->is_field_ready($node, 'body');
-    if ($node && $node->bundle() == 'html_page' && $is_ready) {
-      $body = $node->body->value;
+    $output = $this->getTemplatingDatabaseHTMLStatic($node);
+    if ($output) {
       $var['entity'] = $node;
       return [
         '#type' => 'inline_template',
-        '#template' => $body,
+        '#template' => $output,
         '#context' => $var
       ];
     }

@@ -286,6 +286,9 @@ class BaseServiceEntityInlineTemplate
         return  end($nodes);
     }
     public function getTemplatingByTitle($hook_name){
+        if($hook_name == NULL || $hook_name == ''){
+            return false ;
+        }
         $array = ['type' => 'templating','status' => true ,'title' => $hook_name];
         $nodes = \Drupal::entityTypeManager()->getStorage('node')
         ->loadByProperties($array);

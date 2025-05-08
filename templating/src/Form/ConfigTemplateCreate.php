@@ -44,6 +44,7 @@ class ConfigTemplateCreate extends FormBase
                     5 =>'Form',
                     6 => 'Field',
                     7 => 'Page',
+                    8 => 'Html static'
                 ],
                 '#required' => true,
             ];
@@ -78,6 +79,9 @@ class ConfigTemplateCreate extends FormBase
         }
         if ($this->step == 7) {
             $form = TemplatingForm::pageForm($form);
+        }
+        if ($this->step == 8) {
+            $form = TemplatingForm::htmlForm($form);
         }
         $form['actions'] = ['#type' => 'actions'];
         $form['actions']['submit'] = [
@@ -190,7 +194,16 @@ class ConfigTemplateCreate extends FormBase
                     $bundle = $configs['bundle'];
                 }
             }
-            // template block_content
+            // template html
+            if (isset($values['html_name'])) {
+                    $configs = TemplatingForm::htmlFormSubmit($values);
+                    if (isset($configs['name'])) {
+                        $config_name = $configs['name'];
+                        $config_name_init = $configs['entity_type'];
+                        $bundle = $configs['bundle'];
+                    }
+            }
+            // template page
             if (isset($values['page_name'])) {
                 $configs = TemplatingForm::pageFormSubmit($values);
                 if (isset($configs['name'])) {
