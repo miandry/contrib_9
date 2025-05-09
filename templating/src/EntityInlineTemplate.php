@@ -76,6 +76,9 @@ class EntityInlineTemplate extends BaseServiceEntityInlineTemplate
   }
   function getTemplatingDatabaseHTMLStatic($entity, $mode_view = null)
   {
+    if(!is_object($entity)){
+      return false ;
+    }
     $theme = $this->is_allowed();
     if (!$theme) {
       return false;
