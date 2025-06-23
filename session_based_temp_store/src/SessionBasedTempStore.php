@@ -183,10 +183,19 @@ class SessionBasedTempStore {
       }
     }
 
+    // Note that this service was renamed in Drupal 9.5 and deprecated in 10.
+    $version = (int) explode('.', \Drupal::VERSION)[0];
+    if ($version < 10) {
+      $request_time = (int) $this->requestStack->getMasterRequest()->server->get('REQUEST_TIME');
+    }
+    else {
+      $request_time = (int) $this->requestStack->getMainRequest()->server->get('REQUEST_TIME');
+    }
+
     $value = (object) [
       'owner' => $this->getOwner(),
       'data' => $value,
-      'updated' => (int) $this->requestStack->getMasterRequest()->server->get('REQUEST_TIME'),
+      'updated' => $request_time,
     ];
 
     // If the global expiration time is set to 0 (expire at the end of the session),
@@ -289,7 +298,7 @@ class SessionBasedTempStore {
       }
 
       // Since security is not a problem, let's keep it short.
-      $session_store_id = mb_substr($session->getId(), 0, 12);
+      $session_store_id = mb_substr($session->get('core.tempstore.private.owner'), 0, 12);
 
       $request = $this->requestStack->getCurrentRequest();
       $session_options = $this->sessionConfiguration->getOptions($request);
@@ -352,8 +361,18 @@ class SessionBasedTempStore {
     if ($this->expire === 0) {
       return $this->expire;
     }
+
     // Otherwise set the specific expiration time passed in the argument.
-    $request_time = (int) $this->requestStack->getMasterRequest()->server->get('REQUEST_TIME');
+
+    // Note that this service was renamed in Drupal 9.5 and deprecated in 10.
+    $version = (int) explode('.', \Drupal::VERSION)[0];
+    if ($version < 10) {
+      $request_time = (int) $this->requestStack->getMasterRequest()->server->get('REQUEST_TIME');
+    }
+    else {
+      $request_time = (int) $this->requestStack->getMainRequest()->server->get('REQUEST_TIME');
+    }
+
     return $request_time + $this->expire;
   }
 
